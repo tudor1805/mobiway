@@ -1,7 +1,7 @@
 package ro.pub.acs.traffic.model;
 
 public class User {
-	private long id;
+	private long id_user;
 	private String username;
 	private String password;
 	private String firstname;
@@ -11,12 +11,13 @@ public class User {
 	private long facebook_expires_in;
 	private String auth_token;
 	private long auth_expires_in;
+	private String uuid;
 	
-	public long getId() {
-		return id;
+	public long getId_user() {
+		return id_user;
 	}
-	public void setId(long id) {
-		this.id = id;
+	public void setId_user(long id) {
+		this.id_user = id;
 	}
 	public String getUsername() {
 		return username;
@@ -71,6 +72,12 @@ public class User {
 	}
 	public void setAuth_expires_in(long auth_expires_in) {
 		this.auth_expires_in = auth_expires_in;
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 	
 }

@@ -42,12 +42,18 @@ public class ServicesController {
 
 	@RequestMapping(value = "/signup/userpass", method = RequestMethod.POST)
 	public @ResponseBody User userPassCreateAccount(@RequestBody User user) {
+		User userExists = userDao.getUser(user.getUsername());
+		if(userExists != null){
+			return null;
+		}
+		
 		String uuid = UUID.randomUUID().toString();
 		DateTime dateTime = new DateTime();
 		DateTime threeMontsLater = dateTime.plusMonths(3);
 		long seconds = Seconds.secondsBetween(dateTime, threeMontsLater)
 				.getSeconds();
 		user.setAuth_token(uuid);
+		user.setUuid(uuid);
 		user.setAuth_expires_in(seconds);
 
 		/* Save and return the new user */
@@ -61,7 +67,7 @@ public class ServicesController {
 	public @ResponseBody User loginWithFacebook(@RequestBody User user) {
 		User oldUser = userDao.getUser(user.getUsername());
 		if (oldUser != null) {
-			user.setId(oldUser.getId());
+			user.setId_user(oldUser.getId_user());
 		}
 
 		Facebook facebook = new FacebookTemplate(user.getFacebook_token());
@@ -117,7 +123,7 @@ public class ServicesController {
 			@RequestHeader("X-Auth-Token") String authToken) {
 		User user = userDao.getUser(authToken, location.getId_user());
 		if(user != null){
-			location.setId_user(user.getId());
+			location.setId_user(user.getId_user());
 			locationDao.updateLocation(location);
 			return true;
 		}

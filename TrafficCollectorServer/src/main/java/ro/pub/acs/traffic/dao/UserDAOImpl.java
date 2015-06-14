@@ -95,7 +95,7 @@ public class UserDAOImpl implements UserDAO {
 		Session session = sessionFactory.getCurrentSession();
 		session.saveOrUpdate(user);
 		
-		return user.getId();
+		return user.getId_user();
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public class UserDAOImpl implements UserDAO {
 		Session session = sessionFactory.getCurrentSession();
 		session.saveOrUpdate(user);
 		
-		return user.getId();
+		return user.getId_user();
 	}
 
 }

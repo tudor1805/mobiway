@@ -3,9 +3,9 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="ro.pub.acs.traffic.model">
-	<class name="User" table="users">
-		<id name="id" column="id">
-			<generator class="native"/>
+	<class name="User" table="user">
+		<id name="id_user" column="id_user">
+			<generator class="native" />
 		</id>
 		<property name="username" column="username" />
 		<property name="password" column="password" />
@@ -16,39 +16,16 @@
 		<property name="facebook_expires_in" column="facebook_expires_in" />
 		<property name="auth_token" column="auth_token" />
 		<property name="auth_expires_in" column="auth_expires_in" />
-	</class>	
-	
-	<class name="Stats" table="stats">
-		<id name="id" column="id">
-			<generator class="native"/>
-		</id>
-		<property name="id_user" column="id_user" />
-		<property name="server_info" column="server_info" />
-		<property name="page" column="page" />
-		<property name="type" column="type" />
-		<property name="login_date" column="login_date" />
-	</class>	
-	
+		<property name="uuid" column="uuid" />
+	</class>
+
 	<class name="Location" table="location">
-		<id name="id" column="id">
-			<generator class="native"/>
+		<id name="id_user" column="id_user">
+			<generator class="native" />
 		</id>
-		<property name="id_user" column="id_user" />
-		<property name="name" column="name" />
-		<property name="twitter" column="twitter" />
 		<property name="speed" column="speed" />
-		<property name="facebook" column="facebook" />
-		<property name="stop" column="stop" />
 		<property name="timestamp" column="timestamp" />
-		<property name="lat" column="lat" />
-		<property name="lng" column="lng" />
-	</class>	
-	
-		<class name="History" table="history">
-		<id name="id" column="id">
-			<generator class="native"/>
-		</id>
-		<property name="id_user" column="id_user" />
-		<property name="file" column="file" />
-	</class>	
+		<property name="latitude" column="latitude" />
+		<property name="longitude" column="longitude" />
+	</class>
 </hibernate-mapping>

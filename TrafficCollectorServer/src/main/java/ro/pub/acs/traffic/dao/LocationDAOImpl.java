@@ -45,20 +45,11 @@ public class LocationDAOImpl implements LocationDAO {
 	
 	@Override
 	@Transactional
-	public long addLocation(Location location) {
-		Session session = sessionFactory.getCurrentSession();
-		session.saveOrUpdate(location);
-		
-		return location.getId();
-	}
-	
-	@Override
-	@Transactional
 	public long updateLocation(Location location) {
 		Session session = sessionFactory.getCurrentSession();
 		session.saveOrUpdate(location);
 		
-		return location.getId();
+		return location.getId_user();
 	}
 
 }

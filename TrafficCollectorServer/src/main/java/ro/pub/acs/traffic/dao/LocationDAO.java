@@ -6,6 +6,5 @@ import ro.pub.acs.traffic.model.Location;
 public interface LocationDAO {
 	public List<Location> list();
 	public Location getLocation(long user_id);
-	public long addLocation(Location location);
 	public long updateLocation(Location location);
 }
