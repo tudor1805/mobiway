@@ -1,5 +1,6 @@
 package ro.pub.acs.traffic.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -9,6 +10,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.traffic.model.User;
+import ro.pub.acs.traffic.model.UserContact;
 
 public class UserDAOImpl implements UserDAO {
 	private SessionFactory sessionFactory;
@@ -105,6 +107,26 @@ public class UserDAOImpl implements UserDAO {
 		session.saveOrUpdate(user);
 		
 		return user.getId_user();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional
+	public List<User> getUsersWithPhone() {
+		Criteria criteria = sessionFactory.getCurrentSession()
+				.createCriteria(User.class)
+				.add(Restrictions.isNotNull("phone"));
+
+		List<Object> result = criteria.list();
+		List<User> listUser = new ArrayList<User>();
+		
+		if(result != null)
+			for(Object user : result){
+				User friend = (User) user; 
+				listUser.add(friend);
+			}
+
+		return listUser;
 	}
 
 }

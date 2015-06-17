@@ -51,5 +51,14 @@ public class LocationDAOImpl implements LocationDAO {
 		
 		return location.getId_user();
 	}
+	
+	@Override
+	@Transactional
+	public long addLocation(Location location) {
+		Session session = sessionFactory.getCurrentSession();
+		session.save(location);
+		
+		return location.getId_user();
+	}
 
 }

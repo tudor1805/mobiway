@@ -20,12 +20,18 @@
 	</class>
 
 	<class name="Location" table="location">
-		<id name="id_user" column="id_user">
-			<generator class="native" />
-		</id>
+		<id name="id_user" column="id_user" />
 		<property name="speed" column="speed" />
 		<property name="timestamp" column="timestamp" />
 		<property name="latitude" column="latitude" />
 		<property name="longitude" column="longitude" />
+	</class>
+	
+	<class name="UserContact" table="user_contact">
+		<id name="id" column="id">
+			<generator class="native" />
+		</id>
+		<property name="id_user" column="id_user" />
+		<property name="id_friend_user" column="id_friend_user" />
 	</class>
 </hibernate-mapping>

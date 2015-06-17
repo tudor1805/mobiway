@@ -12,4 +12,5 @@ public interface UserDAO {
 	public User getUser(String email, String password);
 	public long updateUser(User user);
 	public long addUser(User user);
+	public List<User> getUsersWithPhone();
 }
