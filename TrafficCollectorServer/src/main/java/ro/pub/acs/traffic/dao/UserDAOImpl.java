@@ -10,7 +10,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.traffic.model.User;
-import ro.pub.acs.traffic.model.UserContact;
 
 public class UserDAOImpl implements UserDAO {
 	private SessionFactory sessionFactory;

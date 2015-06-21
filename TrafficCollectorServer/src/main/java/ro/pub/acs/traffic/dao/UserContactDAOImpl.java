@@ -24,15 +24,16 @@ public class UserContactDAOImpl implements UserContactDAO {
 	@Transactional
 	public List<User> getFriends(long id_user) {
 		Criteria criteria = sessionFactory.getCurrentSession()
-							.createCriteria(UserContact.class)
-							.add(Restrictions.eq("id_user", id_user));
+				.createCriteria(UserContact.class)
+				.add(Restrictions.eq("id_user", id_user));
 
 		List<Object> result = criteria.list();
 		List<User> listUser = new ArrayList<User>();
-		
-		for(Object user : result){
+
+		for (Object user : result) {
 			UserContact userContact = (UserContact) user;
-			User friend = new UserDAOImpl(sessionFactory).getUser(userContact.getId_friend_user());
+			User friend = new UserDAOImpl(sessionFactory).getUser(userContact
+					.getId_friend_user());
 			listUser.add(friend);
 		}
 
@@ -44,7 +45,28 @@ public class UserContactDAOImpl implements UserContactDAO {
 	public boolean addFriend(UserContact userContact) {
 		Session session = sessionFactory.getCurrentSession();
 		session.save(userContact);
-		
+
 		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional
+	public List<String> getFriendsEmails(long id_user) {
+		Criteria criteria = sessionFactory.getCurrentSession()
+				.createCriteria(UserContact.class)
+				.add(Restrictions.eq("id_user", id_user));
+
+		List<Object> result = criteria.list();
+		List<String> listUser = new ArrayList<String>();
+
+		for (Object user : result) {
+			UserContact userContact = (UserContact) user;
+			User friend = new UserDAOImpl(sessionFactory).getUser(userContact
+					.getId_friend_user());
+			listUser.add(friend.getUsername());
+		}
+
+		return listUser;
 	}
 }

@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `journey_data` (
 --
 
 CREATE TABLE IF NOT EXISTS `location` (
-`id_user` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL PRIMARY KEY,
   `latitude` float(10,6) NOT NULL,
   `longitude` float(10,6) NOT NULL,
   `speed` int(11) NOT NULL,
