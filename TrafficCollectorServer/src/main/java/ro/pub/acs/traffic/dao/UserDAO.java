@@ -1,16 +1,24 @@
 package ro.pub.acs.traffic.dao;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ro.pub.acs.traffic.model.User;
 
-public interface UserDAO {
+public interface UserDAO extends Serializable {
 	public List<User> list();
-	public User getUser(long id);
-	public User getUser(String email);
-	public User getUser(String token, long id);
-	public User getUser(String email, String password);
-	public long updateUser(User user);
-	public long addUser(User user);
-	public List<User> getUsersWithPhone();
+
+	public User get(int id);
+
+	public User get(String email);
+
+	public User get(String token, int id);
+
+	public User get(String email, String password);
+
+	public int update(User user);
+
+	public int add(User user);
+
+	public User loginUser(String username, String password);
 }

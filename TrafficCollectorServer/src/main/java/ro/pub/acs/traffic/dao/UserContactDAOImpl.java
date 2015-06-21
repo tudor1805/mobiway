@@ -1,16 +1,9 @@
 package ro.pub.acs.traffic.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.transaction.annotation.Transactional;
 
-import ro.pub.acs.traffic.model.User;
-import ro.pub.acs.traffic.model.UserContact;
+import ro.pub.acs.traffic.model.*;
 
 public class UserContactDAOImpl implements UserContactDAO {
 	private SessionFactory sessionFactory;
@@ -19,54 +12,32 @@ public class UserContactDAOImpl implements UserContactDAO {
 		this.sessionFactory = sessionFactory;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional
-	public List<User> getFriends(long id_user) {
+	public UserContact get(int id) {
 		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(UserContact.class)
-				.add(Restrictions.eq("id_user", id_user));
+				.createCriteria(User.class).add(Restrictions.eq("id", id));
 
-		List<Object> result = criteria.list();
-		List<User> listUser = new ArrayList<User>();
+		Object result = criteria.uniqueResult();
+		UserContact userContact = null;
+		if (result != null)
+			userContact = (UserContact) result;
 
-		for (Object user : result) {
-			UserContact userContact = (UserContact) user;
-			User friend = new UserDAOImpl(sessionFactory).getUser(userContact
-					.getId_friend_user());
-			listUser.add(friend);
-		}
-
-		return listUser;
+		return userContact;
 	}
 
 	@Override
-	@Transactional
-	public boolean addFriend(UserContact userContact) {
+	public int update(UserContact userContact) {
 		Session session = sessionFactory.getCurrentSession();
-		session.save(userContact);
+		session.saveOrUpdate(userContact);
 
-		return true;
+		return userContact.getId().intValue();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional
-	public List<String> getFriendsEmails(long id_user) {
-		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(UserContact.class)
-				.add(Restrictions.eq("id_user", id_user));
+	public int add(UserContact userContact) {
+		Session session = sessionFactory.getCurrentSession();
+		session.saveOrUpdate(userContact);
 
-		List<Object> result = criteria.list();
-		List<String> listUser = new ArrayList<String>();
-
-		for (Object user : result) {
-			UserContact userContact = (UserContact) user;
-			User friend = new UserDAOImpl(sessionFactory).getUser(userContact
-					.getId_friend_user());
-			listUser.add(friend.getUsername());
-		}
-
-		return listUser;
+		return userContact.getId().intValue();
 	}
 }

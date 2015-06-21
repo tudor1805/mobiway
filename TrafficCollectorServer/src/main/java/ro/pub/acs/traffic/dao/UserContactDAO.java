@@ -1,12 +1,11 @@
 package ro.pub.acs.traffic.dao;
 
-import java.util.List;
-
-import ro.pub.acs.traffic.model.User;
-import ro.pub.acs.traffic.model.UserContact;
+import ro.pub.acs.traffic.model.*;
 
 public interface UserContactDAO {
-	public List<User> getFriends(long id_user);
-	public List<String> getFriendsEmails(long id_user);
-	public boolean addFriend(UserContact userContact);
+	public UserContact get(int id);
+
+	public int update(UserContact journey);
+
+	public int add(UserContact journey);
 }

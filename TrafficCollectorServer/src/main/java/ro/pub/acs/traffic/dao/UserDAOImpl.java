@@ -1,6 +1,5 @@
 package ro.pub.acs.traffic.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -31,101 +30,96 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	@Transactional
-	public User getUser(long id) {
+	public User get(int id) {
 		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(User.class)
-				.add(Restrictions.eq("id", id));
-		
+				.createCriteria(User.class).add(Restrictions.eq("id", id));
+
 		Object result = criteria.uniqueResult();
 		User user = null;
-		if(result != null)
+		if (result != null)
 			user = (User) result;
-		
+
 		return user;
 	}
-	
+
 	@Override
 	@Transactional
-	public User getUser(String email) {
+	public User get(String email) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(User.class)
 				.add(Restrictions.eq("username", email));
-		
+
 		Object result = criteria.uniqueResult();
 		User user = null;
-		if(result != null)
+		if (result != null)
 			user = (User) result;
-		
+
 		return user;
 	}
-	
+
 	@Override
 	@Transactional
-	public User getUser(String email, String password) {
-		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(User.class);
+	public User get(String email, String password) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
+				User.class);
 		criteria = criteria.add(Restrictions.eq("username", email));
 		criteria = criteria.add(Restrictions.eq("password", password));
-		
+
 		Object result = criteria.uniqueResult();
 		User user = null;
-		if(result != null)
+		if (result != null)
 			user = (User) result;
-		
+
 		return user;
 	}
-	
+
 	@Override
 	@Transactional
-	public User getUser(String token, long id){
+	public User get(String token, int id) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(User.class)
 				.add(Restrictions.eq("auth_token", token));
-		
+
 		Object result = criteria.uniqueResult();
 		User user = null;
-		if(result != null)
+		if (result != null)
 			user = (User) result;
-		
+
 		return user;
 	}
-	
+
 	@Override
 	@Transactional
-	public long addUser(User user) {
+	public int add(User user) {
 		Session session = sessionFactory.getCurrentSession();
 		session.saveOrUpdate(user);
-		
-		return user.getId_user();
-	}
-	
-	@Override
-	@Transactional
-	public long updateUser(User user) {
-		Session session = sessionFactory.getCurrentSession();
-		session.saveOrUpdate(user);
-		
-		return user.getId_user();
+
+		return user.getId();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
-	public List<User> getUsersWithPhone() {
+	public int update(User user) {
+		Session session = sessionFactory.getCurrentSession();
+		session.saveOrUpdate(user);
+
+		return user.getId();
+	}
+
+	@Override
+	@Transactional
+	public User loginUser(String username, String password) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(User.class)
-				.add(Restrictions.isNotNull("phone"));
+				.add(Restrictions.eq("username", username))
+				.add(Restrictions.eq("password", password));
 
-		List<Object> result = criteria.list();
-		List<User> listUser = new ArrayList<User>();
-		
-		if(result != null)
-			for(Object user : result){
-				User friend = (User) user; 
-				listUser.add(friend);
-			}
+		Object result = criteria.uniqueResult();
+		User user = null;
+		if (result != null)
+			user = (User) result;
 
-		return listUser;
+		return user;
 	}
 
 }
