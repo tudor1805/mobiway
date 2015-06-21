@@ -6,15 +6,14 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "location")
-public class Location implements Serializable {
-
+@Table(name = "journey_data")
+public class JourneyData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
-	@Column(name = "id_user")
-	private Integer idUser;
+	@Column(name = "id")
+	private Integer id;
 
 	@Basic(optional = false)
 	@NotNull
@@ -37,32 +36,32 @@ public class Location implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date timestamp;
 
-	@JoinColumn(name = "id_user", referencedColumnName = "id", insertable = false, updatable = false)
-	@OneToOne(optional = false)
-	private User user;
+	@JoinColumn(name = "journey_id", referencedColumnName = "id")
+	@ManyToOne(optional = false)
+	private Journey journeyId;
 
-	public Location() {
+	public JourneyData() {
 	}
 
-	public Location(Integer idUser) {
-		this.idUser = idUser;
+	public JourneyData(Integer id) {
+		this.id = id;
 	}
 
-	public Location(Integer idUser, float latitude, float longitude, int speed,
+	public JourneyData(Integer id, float latitude, float longitude, int speed,
 			Date timestamp) {
-		this.idUser = idUser;
+		this.id = id;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.speed = speed;
 		this.timestamp = timestamp;
 	}
 
-	public Integer getIdUser() {
-		return idUser;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setIdUser(Integer idUser) {
-		this.idUser = idUser;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public float getLatitude() {
@@ -97,17 +96,18 @@ public class Location implements Serializable {
 		this.timestamp = timestamp;
 	}
 
-	public User getUser() {
-		return user;
+	public Journey getJourneyId() {
+		return journeyId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setJourneyId(Journey journeyId) {
+		this.journeyId = journeyId;
 	}
 
 	@Override
 	public String toString() {
-		return "ro.pub.acs.traffic.model.Location[ idUser=" + idUser + " ]";
+		return "ro.pub.acs.traffic.model.JourneyData[ id=" + id
+				+ " ]";
 	}
 
 }

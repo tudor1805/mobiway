@@ -1,26 +1,60 @@
 package ro.pub.acs.traffic.model;
 
-public class UserContact {
-	private long id;
-	private long id_user;
-	private long id_friend_user;
-	
-	public long getId() {
-		return id;
+import java.io.Serializable;
+import javax.persistence.*;
+
+@Entity
+@Table(name = "user_contact")
+public class UserContact implements Serializable {
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Basic(optional = false)
+	@Column(name = "id")
+	private Integer id;
+
+	@JoinColumn(name = "id_friend_user", referencedColumnName = "id")
+	@ManyToOne(optional = false)
+	private User idFriendUser;
+
+	@JoinColumn(name = "id_user", referencedColumnName = "id")
+	@ManyToOne(optional = false)
+	private User idUser;
+
+	public UserContact() {
 	}
-	public void setId(long id) {
+
+	public UserContact(Integer id) {
 		this.id = id;
 	}
-	public long getId_user() {
-		return id_user;
+
+	public Integer getId() {
+		return id;
 	}
-	public void setId_user(long id_user) {
-		this.id_user = id_user;
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
-	public long getId_friend_user() {
-		return id_friend_user;
+
+	public User getIdFriendUser() {
+		return idFriendUser;
 	}
-	public void setId_friend_user(long id_friend_user) {
-		this.id_friend_user = id_friend_user;
+
+	public void setIdFriendUser(User idFriendUser) {
+		this.idFriendUser = idFriendUser;
 	}
+
+	public User getIdUser() {
+		return idUser;
+	}
+
+	public void setIdUser(User idUser) {
+		this.idUser = idUser;
+	}
+
+	@Override
+	public String toString() {
+		return "ro.pub.acs.traffic.model.UserContact[ id=" + id + " ]";
+	}
+
 }
