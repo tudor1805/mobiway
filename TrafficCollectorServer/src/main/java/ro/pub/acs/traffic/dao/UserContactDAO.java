@@ -1,5 +1,7 @@
 package ro.pub.acs.traffic.dao;
 
+import java.util.List;
+
 import ro.pub.acs.traffic.model.*;
 
 public interface UserContactDAO {

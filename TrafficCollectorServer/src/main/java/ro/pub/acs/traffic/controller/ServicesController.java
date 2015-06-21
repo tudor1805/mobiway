@@ -10,21 +10,10 @@ import org.joda.time.Seconds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.impl.FacebookTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import ro.pub.acs.traffic.dao.LocationDAO;
-import ro.pub.acs.traffic.dao.UserContactDAO;
-import ro.pub.acs.traffic.dao.UserDAO;
-import ro.pub.acs.traffic.model.Location;
-import ro.pub.acs.traffic.model.Place;
-import ro.pub.acs.traffic.model.User;
-import ro.pub.acs.traffic.model.UserContact;
+import ro.pub.acs.traffic.dao.*;
+import ro.pub.acs.traffic.model.*;
 
 @RestController
 @RequestMapping("/services")
@@ -40,15 +29,15 @@ public class ServicesController {
 	private UserContactDAO userContactDao;
 
 	@RequestMapping(value = "user/getUser/{userId}", method = RequestMethod.GET)
-	public @ResponseBody User getUser(@PathVariable long userId) {
-		User user = userDao.getUser(userId);
+	public @ResponseBody User getUser(@PathVariable int userId) {
+		User user = userDao.get(userId);
 
 		return user;
 	}
 
 	@RequestMapping(value = "/signup/userpass", method = RequestMethod.POST)
 	public @ResponseBody User userPassCreateAccount(@RequestBody User user) {
-		User userExists = userDao.getUser(user.getUsername());
+		User userExists = userDao.get(user.getUsername());
 		if (userExists != null) {
 			return null;
 		}
@@ -56,15 +45,15 @@ public class ServicesController {
 		String uuid = UUID.randomUUID().toString();
 		DateTime dateTime = new DateTime();
 		DateTime threeMontsLater = dateTime.plusMonths(3);
-		long seconds = Seconds.secondsBetween(dateTime, threeMontsLater)
+		int seconds = Seconds.secondsBetween(dateTime, threeMontsLater)
 				.getSeconds();
 		user.setAuth_token(uuid);
 		user.setUuid(uuid);
-		user.setAuth_expires_in(seconds);
+		user.setAuthExpiresIn(seconds);
 
 		/* Save and return the new user */
-		long userId = userDao.addUser(user);
-		User newUser = userDao.getUser(userId);
+		int userId = userDao.add(user);
+		User newUser = userDao.get(userId);
 
 		return newUser;
 	}
@@ -81,34 +70,34 @@ public class ServicesController {
 		}
 
 		/* Update user into database */
-		User oldUser = userDao.getUser(user.getUsername());
+		User oldUser = userDao.get(user.getUsername());
 		if (oldUser != null) {
-			user.setId_user(oldUser.getId_user());
+			user.setId(oldUser.getId());
 		}
 
 		String uuid = UUID.randomUUID().toString();
 		DateTime dateTime = new DateTime(0);
 		DateTime threeMonthsLater = new DateTime().plusMonths(3);
-		long seconds = Seconds.secondsBetween(dateTime, threeMonthsLater)
+		int seconds = Seconds.secondsBetween(dateTime, threeMonthsLater)
 				.getSeconds();
 		user.setAuth_token(uuid);
-		user.setAuth_expires_in(seconds);
+		user.setAuthExpiresIn(seconds);
 
 		/* Save and return the new user */
-		long userId = userDao.addUser(user);
-		User newUser = userDao.getUser(userId);
+		int userId = userDao.add(user);
+		User newUser = userDao.get(userId);
 
 		/* Get friend from Facebook and insert into database */
 		List<String> friendIds = facebook.friendOperations().getFriendIds();
 
 		for (String friendId : friendIds) {
-			User userFried = userDao.getUser(friendId);
+			User userFried = userDao.get(friendId);
 			UserContact userContact1 = new UserContact();
 			UserContact userContact2 = new UserContact();
-			userContact1.setId_user(userId);
-			userContact1.setId_friend_user(userFried.getId_user());
-			userContact2.setId_user(userFried.getId_user());
-			userContact2.setId_friend_user(userId);
+			userContact1.setIdUser(newUser);
+			userContact1.setIdFriendUser(userFried);
+			userContact2.setIdUser(userFried);
+			userContact2.setIdFriendUser(newUser);
 
 			userContactDao.addFriend(userContact1);
 			userContactDao.addFriend(userContact2);
@@ -119,7 +108,7 @@ public class ServicesController {
 
 	@RequestMapping(value = "/authenticate/userpass", method = RequestMethod.POST)
 	public @ResponseBody User loginWithUserAndPass(@RequestBody User user) {
-		User oldUser = userDao.getUser(user.getUsername(), user.getPassword());
+		User oldUser = userDao.get(user.getUsername(), user.getPassword());
 		if (oldUser == null) {
 			return null;
 		}
@@ -127,13 +116,13 @@ public class ServicesController {
 		String uuid = UUID.randomUUID().toString();
 		DateTime dateTime = new DateTime(0);
 		DateTime threeMonthsLater = new DateTime().plusMonths(3);
-		long seconds = Seconds.secondsBetween(dateTime, threeMonthsLater)
+		int seconds = Seconds.secondsBetween(dateTime, threeMonthsLater)
 				.getSeconds();
 		oldUser.setAuth_token(uuid);
-		oldUser.setAuth_expires_in(seconds);
+		oldUser.setAuthExpiresIn(seconds);
 
 		/* Save and return the new user */
-		userDao.updateUser(oldUser);
+		userDao.update(oldUser);
 
 		return oldUser;
 	}
@@ -141,11 +130,11 @@ public class ServicesController {
 	@RequestMapping(value = "/social/getFriendsNames", method = RequestMethod.GET)
 	public @ResponseBody List<User> getFriendsNames(
 			@RequestHeader("X-Auth-Token") String authToken) {
-		User user = userDao.getUser(authToken, 0);
+		User user = userDao.get(authToken, 0);
 		List<User> friends = new ArrayList<User>();
 
 		if (user != null) {
-			friends = userContactDao.getFriends(user.getId_user());
+			friends = userContactDao.getFriends(user.getId());
 		}
 
 		return friends;
@@ -154,15 +143,14 @@ public class ServicesController {
 	@RequestMapping(value = "/social/getFriendsLocations", method = RequestMethod.GET)
 	public @ResponseBody List<Location> getFriendsLocations(
 			@RequestHeader("X-Auth-Token") String authToken) {
-		User user = userDao.getUser(authToken, 0);
+		User user = userDao.get(authToken, 0);
 		List<User> friends = new ArrayList<User>();
 		List<Location> locations = new ArrayList<Location>();
 
 		if (user != null) {
-			friends = userContactDao.getFriends(user.getId_user());
+			friends = userContactDao.getFriends(user.getId());
 			for (User friend : friends) {
-				Location location = locationDao
-						.getLocation(friend.getId_user());
+				Location location = locationDao.get(friend.getId());
 				if (location != null) {
 					location.setTimestamp(null);
 					locations.add(location);
@@ -176,7 +164,7 @@ public class ServicesController {
 	@RequestMapping(value = "/social/getUsersWithPhone", method = RequestMethod.GET)
 	public @ResponseBody List<User> getUsersWithPhone(
 			@RequestHeader("X-Auth-Token") String authToken) {
-		User user = userDao.getUser(authToken, 0);
+		User user = userDao.get(authToken, 0);
 		List<User> users = new ArrayList<User>();
 
 		if (user != null) {
@@ -190,21 +178,21 @@ public class ServicesController {
 	public @ResponseBody boolean addFriends(
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody List<User> friends) {
-		User user = userDao.getUser(authToken, 0);
+		User user = userDao.get(authToken, 0);
 		List<String> oldFriends = new ArrayList<String>();
 		
 		if (user == null) {
 			return false;
 		} else {
 			for (User friend : friends) {
-				oldFriends = userContactDao.getFriendsEmails(user.getId_user());
-				if (user.getId_user() != friend.getId_user() && !oldFriends.contains(friend.getUsername())) {
+				oldFriends = userContactDao.getFriendsEmails(user.getId());
+				if (user.getId() != friend.getId() && !oldFriends.contains(friend.getUsername())) {
 					UserContact userContact1 = new UserContact();
 					UserContact userContact2 = new UserContact();
-					userContact1.setId_user(user.getId_user());
-					userContact1.setId_friend_user(friend.getId_user());
-					userContact2.setId_user(friend.getId_user());
-					userContact2.setId_friend_user(user.getId_user());
+					userContact1.setIdUser(user);
+					userContact1.setIdFriendUser(friend);
+					userContact2.setIdUser(friend);
+					userContact2.setIdFriendUser(user);
 
 					userContactDao.addFriend(userContact1);
 					userContactDao.addFriend(userContact2);
@@ -234,20 +222,20 @@ public class ServicesController {
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
 	public @ResponseBody boolean updateLocation(@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {
-		User user = userDao.getUser(authToken, location.getId_user());
+		User user = userDao.get(authToken, location.getIdUser());
 
 		if (user != null) {
-			Location locationUser = locationDao.getLocation(user.getId_user());
+			Location locationUser = locationDao.get(user.getId());
 			if (locationUser != null) {
 				locationUser.setLatitude(location.getLatitude());
 				locationUser.setLongitude(location.getLongitude());
 				locationUser.setSpeed(location.getSpeed());
 				locationUser.setTimestamp(new Date());
-				locationDao.updateLocation(locationUser);
+				locationDao.update(locationUser);
 			} else {
-				location.setId_user(user.getId_user());
+				location.setUser(user);
 				location.setTimestamp(new Date());
-				locationDao.addLocation(location);
+				locationDao.add(location);
 			}
 
 			return true;

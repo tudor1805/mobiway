@@ -1,5 +1,10 @@
 package ro.pub.acs.traffic.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
 import org.hibernate.*;
 import org.hibernate.criterion.Restrictions;
 
@@ -40,4 +45,5 @@ public class UserContactDAOImpl implements UserContactDAO {
 
 		return userContact.getId().intValue();
 	}
+	
 }

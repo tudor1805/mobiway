@@ -122,4 +122,10 @@ public class UserDAOImpl implements UserDAO {
 		return user;
 	}
 
+	@Override
+	public List<User> getUsersWithPhone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

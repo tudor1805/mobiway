@@ -21,4 +21,6 @@ public interface UserDAO extends Serializable {
 	public int add(User user);
 
 	public User loginUser(String username, String password);
+	
+    public List<User> getUsersWithPhone();
 }

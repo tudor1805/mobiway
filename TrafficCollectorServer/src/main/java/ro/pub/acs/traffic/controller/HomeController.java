@@ -22,7 +22,7 @@ public class HomeController {
 	@RequestMapping(value="/")
 	public ModelAndView home() {
 		List<User> listUsers = userDao.list();
-		User user = userDao.getUser(4);
+		User user = userDao.get(4);
 		
 		ModelAndView model = new ModelAndView("home");
 		model.addObject("userList", listUsers);
