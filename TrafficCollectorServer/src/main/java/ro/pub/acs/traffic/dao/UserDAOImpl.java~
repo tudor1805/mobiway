@@ -1,6 +1,5 @@
 package ro.pub.acs.traffic.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -123,9 +122,7 @@ public class UserDAOImpl implements UserDAO {
 		return user;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional
 	public List<User> getUsersWithPhone() {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(User.class)

@@ -11,7 +11,6 @@ public class Location implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
 	@Column(name = "id_user")
 	private Integer idUser;
@@ -31,13 +30,12 @@ public class Location implements Serializable {
 	@Column(name = "speed")
 	private int speed;
 
-	@Basic(optional = false)
-	@NotNull
 	@Column(name = "timestamp")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date timestamp;
 
 	@JoinColumn(name = "id_user", referencedColumnName = "id", insertable = false, updatable = false)
+	@Transient
 	@OneToOne(optional = false)
 	private User user;
 

@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `traffic_collector`
 --
-DROP DATABASE `traffic_collector`;
+DROP DATABASE IF EXISTS `traffic_collector`;
 CREATE DATABASE `traffic_collector` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `traffic_collector`;
 
@@ -65,13 +65,13 @@ CREATE TABLE IF NOT EXISTS `journey_data` (
 
 DROP TABLE IF EXISTS `location`;
 CREATE TABLE IF NOT EXISTS `location` (
-  `id_user` int(11) NOT NULL AUTO_INCREMENT,
+  `id_user` int(11) NOT NULL,
   `latitude` float(10,6) NOT NULL,
   `longitude` float(10,6) NOT NULL,
   `speed` int(11) NOT NULL,
   `timestamp` datetime NOT NULL,
   PRIMARY KEY (`id_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -83,12 +83,12 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` text NOT NULL,
-  `password` text NOT NULL,
+  `password` text,
   `firstname` varchar(100) NOT NULL,
   `lastname` varchar(100) NOT NULL,
   `phone` varchar(15) DEFAULT NULL,
   `facebook_token` text,
-  `facebook_expires_in` int(11) NOT NULL,
+  `facebook_expires_in` int(11) DEFAULT 0,
   `auth_token` text NOT NULL,
   `auth_expires_in` int(11) NOT NULL,
   `uuid` varchar(512) NOT NULL,

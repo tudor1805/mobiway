@@ -1,11 +1,8 @@
 package ro.pub.acs.traffic.model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import javax.xml.bind.annotation.*;
-import ro.pub.acs.traffic.model.Location;
 
 @Entity
 @Table(name = "user")
@@ -25,10 +22,6 @@ public class User implements Serializable {
 	@Column(name = "username")
 	private String username;
 
-	@Basic(optional = false)
-	@NotNull
-	@Lob
-	@Size(min = 1, max = 65535)
 	@Column(name = "password")
 	private String password;
 
@@ -46,26 +39,14 @@ public class User implements Serializable {
 	@Column(name = "lastname")
 	private String lastname;
 
-	@Basic(optional = false)
-	@NotNull
-	@Lob
-	@Size(min = 1, max = 20)
 	@Column(name = "phone")
 	private String phone;
 
-	@Basic(optional = false)
-	@NotNull
-	@Lob
-	@Size(min = 1, max = 512)
 	@Column(name = "facebook_token")
 	private String facebook_token;
-/*
-	@Basic(optional = false)
-	@NotNull
-	@Lob
+	
 	@Column(name = "facebook_expires_in")
-	*/
-	private Integer facebook_expires_in;
+	private Integer facebookExpiresIn;
 
 	@Basic(optional = false)
 	@NotNull
@@ -74,13 +55,8 @@ public class User implements Serializable {
 	@Column(name = "auth_token")
 	private String auth_token;
 
-	/*
-	@Basic(optional = false)
-	@NotNull
-	@Lob
 	@Column(name = "auth_expires_in")
-	*/
-	private Integer auth_expires_in;
+	private Integer authExpiresIn;
 
 	@Basic(optional = false)
 	@NotNull
@@ -88,7 +64,7 @@ public class User implements Serializable {
 	@Column(name = "uuid")
 	private String uuid;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "idFriendUser")
+	/*@OneToMany(cascade = CascadeType.ALL, mappedBy = "idFriendUser")
 	private Collection<UserContact> userContactCollection;
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "idUser")
 	private Collection<UserContact> userContactCollection1;
@@ -96,7 +72,7 @@ public class User implements Serializable {
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
 	private Location location;
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "id")
-	private Collection<Journey> journeyCollection;
+	private Collection<Journey> journeyCollection;*/
 
 	public User() {
 	}
@@ -177,11 +153,11 @@ public class User implements Serializable {
 	}
 
 	public Integer getFacebookExpiresIn() {
-		return facebook_expires_in;
+		return facebookExpiresIn;
 	}
 
 	public void setFacebookExpiresIn(Integer facebook_expires_in) {
-		this.facebook_expires_in = facebook_expires_in;
+		this.facebookExpiresIn = facebook_expires_in;
 	}
 
 	public String getAuth_token() {
@@ -193,11 +169,11 @@ public class User implements Serializable {
 	}
 
 	public Integer getAuthExpiresIn() {
-		return auth_expires_in;
+		return authExpiresIn;
 	}
 
 	public void setAuthExpiresIn(Integer auth_expires_in) {
-		this.auth_expires_in = auth_expires_in;
+		this.authExpiresIn = auth_expires_in;
 	}
 
 	public String getUuid() {
@@ -208,7 +184,7 @@ public class User implements Serializable {
 		this.uuid = uuid;
 	}
 
-	//@XmlTransient
+	/*//@XmlTransient
 	public Collection<UserContact> getUserContactCollection() {
 		return userContactCollection;
 	}
@@ -243,7 +219,7 @@ public class User implements Serializable {
 
 	public void setJourneyCollection(Collection<Journey> journeyCollection) {
 		this.journeyCollection = journeyCollection;
-	}
+	}*/
 
 	@Override
 	public String toString() {

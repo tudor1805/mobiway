@@ -1,11 +1,13 @@
 package ro.pub.acs.traffic.dao;
 
+import java.util.List;
+
 import ro.pub.acs.traffic.model.Location;
+import ro.pub.acs.traffic.model.User;
 
 public interface LocationDAO {
-	public Location get(int user_id);
-
-	public long add(Location location);
-
-	public long update(Location location);
+	public List<Location> list();
+	public Location getLocation(User user);
+	public Integer updateLocation(Location location);
+	public Integer addLocation(Location location);
 }

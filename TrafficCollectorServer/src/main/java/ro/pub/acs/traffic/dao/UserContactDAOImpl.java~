@@ -46,21 +46,21 @@ public class UserContactDAOImpl implements UserContactDAO {
 		return userContact.getId().intValue();
 	}
 
-	@SuppressWarnings("unchecked")
+@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
-	public List<User> getFriends(User user) {
+	public List<User> getFriends(long id_user) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(UserContact.class)
-				.add(Restrictions.eq("idUser", user));
+				.add(Restrictions.eq("id_user", id_user));
 
 		List<Object> result = criteria.list();
 		List<User> listUser = new ArrayList<User>();
 
-		for (Object usr : result) {
-			UserContact userContact = (UserContact) usr;
-			User friend = new UserDAOImpl(sessionFactory).get(userContact
-					.getIdFriendUser().getId());
+		for (Object user : result) {
+			UserContact userContact = (UserContact) user;
+			User friend = new UserDAOImpl(sessionFactory).getUser(userContact
+					.getId_friend_user());
 			listUser.add(friend);
 		}
 
@@ -79,18 +79,18 @@ public class UserContactDAOImpl implements UserContactDAO {
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
-	public List<String> getFriendsEmails(User user) {
+	public List<String> getFriendsEmails(long id_user) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(UserContact.class)
-				.add(Restrictions.eq("idUser", user));
+				.add(Restrictions.eq("id_user", id_user));
 
 		List<Object> result = criteria.list();
 		List<String> listUser = new ArrayList<String>();
 
-		for (Object usr : result) {
-			UserContact userContact = (UserContact) usr;
-			User friend = new UserDAOImpl(sessionFactory).get(userContact
-					.getIdFriendUser().getId());
+		for (Object user : result) {
+			UserContact userContact = (UserContact) user;
+			User friend = new UserDAOImpl(sessionFactory).getUser(userContact
+					.getId_friend_user());
 			listUser.add(friend.getUsername());
 		}
 
