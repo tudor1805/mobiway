@@ -5,8 +5,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.impl.FacebookTemplate;
@@ -229,12 +237,47 @@ public class ServicesController {
 		return new ArrayList<Place>();
 	}
 
+	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/social/getRoute", method = RequestMethod.PUT)
 	public @ResponseBody List<Location> getRoute(
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody ArrayList<Location> locations) {
-
-		return new ArrayList<Location>();
+		ArrayList<Location> routePoints = new ArrayList<Location>();
+		
+		try {
+			HttpClient httpClient = new DefaultHttpClient();
+			StringBuilder url = new StringBuilder();
+			url.append("http://192.168.122.136:5000/viaroute?loc=");
+			url.append(locations.get(0).getLatitude()+","+locations.get(0).getLongitude()+"&loc=");
+			url.append(locations.get(1).getLatitude()+","+locations.get(1).getLongitude()+"&instructions=true");
+			HttpGet httpGet = new HttpGet(url.toString());
+		    HttpResponse httpGetResponse = httpClient.execute(httpGet);
+		    HttpEntity httpGetEntity = httpGetResponse.getEntity();
+		    
+		    if (httpGetEntity != null) {  
+		    	String response = EntityUtils.toString(httpGetEntity);
+		    	JSONObject route = new JSONObject(response);
+		    	JSONArray viaPoints = route.getJSONArray("via_points");
+		    	
+		    	if(viaPoints != null){
+		    		for(int i = 0; i < viaPoints.length(); i++){
+			    		JSONArray point = viaPoints.getJSONArray(i);
+			    		Location location = new Location();
+			    		location.setIdUser(0);
+			    		location.setLatitude(point.getInt(0));
+			    		location.setLongitude(point.getInt(1));
+			    		location.setSpeed(0);
+			    		
+			    		routePoints.add(location);
+			    	}
+		    	}
+		    	
+		    }            
+		} catch (Exception exception) {
+		    exception.printStackTrace();
+		}
+		
+		return routePoints;
 	}
 
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
