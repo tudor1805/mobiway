@@ -33,6 +33,7 @@ import ro.pub.acs.traffic.model.Location;
 import ro.pub.acs.traffic.model.Place;
 import ro.pub.acs.traffic.model.User;
 import ro.pub.acs.traffic.model.UserContact;
+import ro.pub.acs.traffic.utils.Constants;
 
 @RestController
 @RequestMapping("/services")
@@ -151,6 +152,31 @@ public class ServicesController {
 
 		return oldUser;
 	}
+	
+	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
+	public @ResponseBody boolean updateLocation(@RequestBody Location location,
+			@RequestHeader("X-Auth-Token") String authToken) {
+		User user = userDAO.get(authToken, location.getIdUser());
+
+		if (user != null) {
+			Location locationUser = locationDAO.getLocation(user);
+			if (locationUser != null) {
+				locationUser.setLatitude(location.getLatitude());
+				locationUser.setLongitude(location.getLongitude());
+				locationUser.setSpeed(location.getSpeed());
+				locationUser.setTimestamp(new Date());
+				locationDAO.updateLocation(locationUser);
+			} else {
+				location.setIdUser(user.getId());
+				location.setTimestamp(new Date());
+				locationDAO.addLocation(location);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
 
 	@RequestMapping(value = "/social/getFriendsNames", method = RequestMethod.GET)
 	public @ResponseBody List<User> getFriendsNames(
@@ -229,16 +255,50 @@ public class ServicesController {
 		return true;
 	}
 
-	@RequestMapping(value = "/social/getNearbyLocations", method = RequestMethod.PUT)
+	@RequestMapping(value = "/social/getNearbyLocations", method = RequestMethod.POST)
 	public @ResponseBody List<Place> getNearbyLocations(
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody List<String> types) {
+		ArrayList<Place> aPlace = new ArrayList<Place>();
+		
+		for(String type : types){
+			JSONArray places = new JSONArray();
+			
+			try {
+				HttpClient httpClient = new DefaultHttpClient();
+				StringBuilder url = new StringBuilder();
+				url.append(Constants.URL_NOMINATIM_API + "/search?format=json&q=bucharest+");
+				url.append(type + "&limit=50");
+				
+				HttpGet httpGet = new HttpGet(url.toString());
+			    HttpResponse httpGetResponse = httpClient.execute(httpGet);
+			    HttpEntity httpGetEntity = httpGetResponse.getEntity();
+			    
+			    if (httpGetEntity != null) {  
+			    	String response = EntityUtils.toString(httpGetEntity);
+			    	places = new JSONArray(response);
+			    	
+			    	for(int i = 0; i < places.length(); i++){
+			    		JSONObject placeObj = places.getJSONObject(i);
+			    		Place place = new Place();
+			    		place.setType(placeObj.getString("type"));
+			    		place.setName(placeObj.getString("display_name"));
+			    		place.setLatitude(Float.parseFloat(placeObj.getString("lat")));
+			    		place.setLongitude(Float.parseFloat(placeObj.getString("lon")));
+			    		
+			    		aPlace.add(place);
+			    	}
+			    }            
+			} catch (Exception exception) {
+			    exception.printStackTrace();
+			}
+		}
 
-		return new ArrayList<Place>();
+		return aPlace;
 	}
 
 	@SuppressWarnings({ "deprecation", "resource" })
-	@RequestMapping(value = "/social/getRoute", method = RequestMethod.PUT)
+	@RequestMapping(value = "/social/getRoute", method = RequestMethod.POST)
 	public @ResponseBody List<Location> getRoute(
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody ArrayList<Location> locations) {
@@ -247,9 +307,10 @@ public class ServicesController {
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
-			url.append("http://192.168.122.136:5000/viaroute?loc=");
+			url.append(Constants.URL_OSRM_API + "/viaroute?loc=");
 			url.append(locations.get(0).getLatitude()+","+locations.get(0).getLongitude()+"&loc=");
-			url.append(locations.get(1).getLatitude()+","+locations.get(1).getLongitude()+"&instructions=true");
+			url.append(locations.get(1).getLatitude()+","+locations.get(1).getLongitude()+"&instructions=true&compression=false");
+			
 			HttpGet httpGet = new HttpGet(url.toString());
 		    HttpResponse httpGetResponse = httpClient.execute(httpGet);
 		    HttpEntity httpGetEntity = httpGetResponse.getEntity();
@@ -257,19 +318,22 @@ public class ServicesController {
 		    if (httpGetEntity != null) {  
 		    	String response = EntityUtils.toString(httpGetEntity);
 		    	JSONObject route = new JSONObject(response);
-		    	JSONArray viaPoints = route.getJSONArray("via_points");
+		    	JSONArray viaPoints = route.getJSONArray("route_geometry");
 		    	
 		    	if(viaPoints != null){
+		    		routePoints.add(locations.get(0));
 		    		for(int i = 0; i < viaPoints.length(); i++){
-			    		JSONArray point = viaPoints.getJSONArray(i);
+			    		String point = viaPoints.getString(i);
+			    		
 			    		Location location = new Location();
 			    		location.setIdUser(0);
-			    		location.setLatitude(point.getInt(0));
-			    		location.setLongitude(point.getInt(1));
+			    		location.setLatitude(Float.parseFloat(point.substring(0, point.indexOf(",") - 1)));
+			    		location.setLongitude(Float.parseFloat(point.substring(point.indexOf(",") + 1)));
 			    		location.setSpeed(0);
 			    		
 			    		routePoints.add(location);
 			    	}
+		    		routePoints.add(locations.get(1));
 		    	}
 		    	
 		    }            
@@ -279,30 +343,5 @@ public class ServicesController {
 		
 		return routePoints;
 	}
-
-	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
-	public @ResponseBody boolean updateLocation(@RequestBody Location location,
-			@RequestHeader("X-Auth-Token") String authToken) {
-		User user = userDAO.get(authToken, location.getIdUser());
-
-		if (user != null) {
-			Location locationUser = locationDAO.getLocation(user);
-			if (locationUser != null) {
-				locationUser.setLatitude(location.getLatitude());
-				locationUser.setLongitude(location.getLongitude());
-				locationUser.setSpeed(location.getSpeed());
-				locationUser.setTimestamp(new Date());
-				locationDAO.updateLocation(locationUser);
-			} else {
-				location.setIdUser(user.getId());
-				location.setTimestamp(new Date());
-				locationDAO.addLocation(location);
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
+	
 }
