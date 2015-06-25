@@ -1,0 +1,58 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColorSecondary">#000000</item>
+        <item name="android:textColorPrimary">#000000</item>
+        <item name="colorControlNormal">#000000</item>
+        <item name="colorControlActivated">#000000</item>
+        <item name="colorControlHighlight">#000000</item>
+    </style>
+
+    <style name="AuthTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/custom_background_theme_color</item>
+        <item name="android:colorBackground">@color/custom_background_theme_color</item>
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="actionBarStyle">@style/ActionBar</item>
+        <item name="colorControlNormal">@color/custom_text_theme_color</item>
+        <item name="colorControlActivated">@color/custom_text_theme_color</item>
+        <item name="colorControlHighlight">@color/custom_text_theme_color</item>
+    </style>
+
+    <style name="ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="android:textColor">@color/custom_text_theme_color</item>
+        <item name="android:colorBackground">@color/custom_background_theme_color</item>
+    </style>
+
+    <style name="LoginButtonStyle">
+        <item name="android:layout_width">250dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginTop">25dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">6pt</item>
+        <item name="android:textColor">@color/custom_text_theme_color</item>
+        <item name="android:background">@drawable/login_button_shape</item>
+    </style>
+
+    <style name="LoginLinkStyle" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">6pt</item>
+        <item name="android:textColor">@color/custom_text_theme_color</item>
+    </style>
+
+    <style name="LoginEditTextStyle">
+        <item name="android:layout_width">250dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:textColor">@color/custom_text_theme_color</item>
+        <item name="android:textColorHint">@color/custom_text_theme_color</item>
+        <item name="android:saveEnabled">false</item>
+    </style>
+
+</resources>

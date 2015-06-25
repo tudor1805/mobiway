@@ -1,0 +1,65 @@
+<resources>
+
+    <string name="app_name">Traffic Collector</string>
+    <string name="facebook_app_id">1583611691898292</string>
+
+    <!-- Activity title -->
+    <string name="title_activity_main">Map</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Required inputs -->
+    <string name="emailAddressRequired">Please insert e-mail address</string>
+    <string name="emailAddressNotValid">Please insert a valid e-mail</string>
+    <string name="emailAddressExists">E-mail already used</string>
+    <string name="passwordRequired">Please insert password</string>
+    <string name="firstNameRequired">Please insert your first name</string>
+    <string name="lastNameRequired">Please insert your last name</string>
+
+    <!-- Settings -->
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
+    <string name="logout_confirmation">Are you sure you want to exit?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <string name="send_notification_to_server">Send location updates to server.</string>
+
+    <string name="account">Account</string>
+    <string name="language">Language</string>
+    <string name="location_updates">Location</string>
+    <string name="categories">Categories for points of interest</string>
+
+    <string name="key_language_preference">key_language_preference</string>
+    <string name="key_account_preference">key_account_preference</string>
+    <string name="key_location_preference">key_location_preference</string>
+    <string name="key_categories_screen">key_categories_screen</string>
+
+    <string name="default_language">ro</string>
+    <string-array name="language_list_name">
+        <item>Romanian</item>
+        <item>English</item>
+    </string-array>
+    <string-array name="language_list_value">
+        <item>ro</item>
+        <item>en</item>
+    </string-array>
+
+    <!-- Login & Create Account -->
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="phone_number">Phone Number*</string>
+    <string name="phone_number_explanation">*Your phone number is used to link you with your friends.
+    Without it, you cannot see your friends in this app.</string>
+    <string name="login_button_content">LOG IN</string>
+    <string name="create_account_button_content"> CREATE ACCOUNT </string>
+    <string name="create_account_action_bar_content">Create Account</string>
+    <string name="authentication_error">E-mail or password is incorrect!</string>
+    <string name="firstName">First name</string>
+    <string name="lastName">Last name</string>
+    <string name="done">DONE</string>
+    <string name="loading">Loading..</string>
+
+    <!-- Map -->
+    <string name="show_route">Show Route</string>
+    <string name="hide_routes">Hide Routes</string>
+</resources>

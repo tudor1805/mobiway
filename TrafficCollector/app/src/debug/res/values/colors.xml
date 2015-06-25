@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="custom_background_main_theme_color">#EEEEEE</color>
+    <color name="custom_background_theme_color">#000</color>
+    <!--<color name="custom_background_theme_color">#00695C</color>-->
+    <color name="custom_text_theme_color">#FFFFFF</color>
+    <color name="custom_color_black">#000000</color>
+    <color name="custom_color_blue">#263961</color>
+    <color name="custom_hint_text_color">#FFCC00</color>
+    <color name="custom_error_text_color">#FF0000</color>
+
+</resources>
