@@ -310,13 +310,14 @@ public class ServicesController {
 			url.append(Constants.URL_OSRM_API + "/viaroute?loc=");
 			url.append(locations.get(0).getLatitude()+","+locations.get(0).getLongitude()+"&loc=");
 			url.append(locations.get(1).getLatitude()+","+locations.get(1).getLongitude()+"&instructions=true&compression=false");
-			
+		
 			HttpGet httpGet = new HttpGet(url.toString());
 		    HttpResponse httpGetResponse = httpClient.execute(httpGet);
 		    HttpEntity httpGetEntity = httpGetResponse.getEntity();
 		    
 		    if (httpGetEntity != null) {  
 		    	String response = EntityUtils.toString(httpGetEntity);
+
 		    	JSONObject route = new JSONObject(response);
 		    	JSONArray viaPoints = route.getJSONArray("route_geometry");
 		    	
@@ -324,11 +325,14 @@ public class ServicesController {
 		    		routePoints.add(locations.get(0));
 		    		for(int i = 0; i < viaPoints.length(); i++){
 			    		String point = viaPoints.getString(i);
-			    		
+			    	
 			    		Location location = new Location();
 			    		location.setIdUser(0);
-			    		location.setLatitude(Float.parseFloat(point.substring(0, point.indexOf(",") - 1)));
-			    		location.setLongitude(Float.parseFloat(point.substring(point.indexOf(",") + 1)));
+
+                                        JSONArray coord = viaPoints.getJSONArray(i);
+					location.setLatitude((float)coord.getDouble(0));
+	  		                location.setLongitude((float)coord.getDouble(1));
+
 			    		location.setSpeed(0);
 			    		
 			    		routePoints.add(location);
