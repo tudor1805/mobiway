@@ -13,6 +13,9 @@ import org.springframework.web.context.request.*;
 import org.springframework.web.servlet.ModelAndView;
 import ro.pub.acs.traffic.model.*;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+
 @org.springframework.stereotype.Controller
 @RequestMapping(value = "/traffic")
 public class MgmtAppController {
@@ -69,6 +72,7 @@ public class MgmtAppController {
 
 		ModelAndView mav = new ModelAndView();
 
+		password = new String(Hex.encodeHex(DigestUtils.sha(password)));
 		User user = userDao.loginUser(username, password);
 		if (user == null) {
 			mav.setViewName("/traffic/login");
