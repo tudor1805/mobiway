@@ -355,8 +355,13 @@
 
                                                 <table border="0" cellpadding="0" cellspacing="0"  id="id-form">
                                                     <tr>
-                                                        <th valign="top">Name:</th>
-                                                        <td><input type="text" name="name" id="name" value="${name}" class="inp-form" /></td>
+                                                        <th valign="top">First Name:</th>
+                                                        <td><input type="text" name="firstname" id="firstname" value="${firstname}" class="inp-form" /></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th valign="top">Last Name:</th>
+                                                        <td><input type="text" name="lastname" id="lastname" value="${lastname}" class="inp-form" /></td>
                                                         <td></td>
                                                     </tr>
                                                     <tr>

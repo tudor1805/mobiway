@@ -104,8 +104,8 @@ public class MgmtAppController {
 
 		User user = getCurrentUser();
 		if (user != null) {
-			mav.addObject("name",
-					user.getFirstname() + " " + user.getLastname());
+			mav.addObject("firstname", user.getFirstname());
+			mav.addObject("lastname", user.getLastname());
 			mav.addObject("username", user.getUsername());
 		} else {
 			// User is not logged in. Redirect to login page
@@ -116,7 +116,9 @@ public class MgmtAppController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/account")
-	public ModelAndView updateAccountInfo(@RequestParam("name") String name,
+	public ModelAndView updateAccountInfo(
+			@RequestParam("firstname") String firstname,
+			@RequestParam("lastname") String lastname,
 			@RequestParam("username") String username,
 			@RequestParam("password") String password,
 			@RequestParam("password_re") String password_re) {
@@ -125,12 +127,19 @@ public class MgmtAppController {
 
 		User user = getCurrentUser();
 		if (user != null) {
-			if (password.isEmpty() || !password.equals(password_re)) {
+			if (!password.isEmpty() && !password.equals(password_re)) {
 				mav.addObject("account_update_error", "yes");
 			} else {
-				user.setFirstname(name);
+				user.setFirstname(firstname);
+				user.setLastname(lastname);
 				user.setUsername(username);
-				user.setPassword(password);
+
+				if (!password.isEmpty()) {
+					password = new String(Hex.encodeHex(DigestUtils
+							.sha(password)));
+					user.setPassword(password);
+				}
+
 				userDao.update(user);
 			}
 
@@ -138,6 +147,8 @@ public class MgmtAppController {
 			mav.addObject("account_try_update", "yes");
 			mav.addObject("name",
 					user.getFirstname() + " " + user.getLastname());
+			mav.addObject("firstname", user.getFirstname());
+			mav.addObject("lastname", user.getLastname());
 			mav.addObject("username", user.getUsername());
 		} else {
 			// User is not logged in. Redirect to login page
@@ -172,7 +183,7 @@ public class MgmtAppController {
 			}
 
 			int totalPages = journeys.size() / journeysPerPage + 1;
-			
+
 			mav.addObject("totalPages", totalPages);
 			mav.addObject("userJourneys", journeysOnThisPage);
 			mav.addObject("currentPage", currPage);
@@ -273,8 +284,9 @@ public class MgmtAppController {
 				Double totalLengthKm = 0.0;
 
 				/*
-				Collection<JourneyData> journeyData = journey
-						.getJourneyDataCollection(); */
+				 * Collection<JourneyData> journeyData = journey
+				 * .getJourneyDataCollection();
+				 */
 
 				for (JourneyData jd : journey.getJourneyDataCollection()) {
 
