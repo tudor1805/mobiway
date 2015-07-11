@@ -30,6 +30,9 @@ public class MgmtAppController {
 	private JourneyDAO journeyDao;
 
 	@Autowired
+	private JourneyDataDAO journeyDataDao;
+
+	@Autowired
 	private ServletContext context;
 
 	// Retrieve session object
@@ -205,15 +208,16 @@ public class MgmtAppController {
 
 		User user = getCurrentUser();
 		if (user != null) {
+
 			Journey journey = journeyDao.get(journeyId);
+
 			List<Marker> markersList = new ArrayList<Marker>();
 
 			// Check that the user is logged in and is the owner of the journey
 			try {
-				if (user.getId() == journey.getIdUser().getId()) {
+				if (user.getId().equals(journey.getIdUser().getId())) {
 
-					Collection<JourneyData> journeyDataList = journey
-							.getJourneyDataCollection();
+					List<JourneyData> journeyDataList = journeyDataDao.getByJourneyId(journey);
 
 					for (JourneyData jd : journeyDataList) {
 						Marker newMarker = new Marker();
@@ -231,14 +235,14 @@ public class MgmtAppController {
 							speedMarker = "stop";
 						}
 
-						newMarker.setName("name=\"Date:" + jd.getTimestamp()
+						newMarker.setName("Date:" + jd.getTimestamp()
 								+ "\"");
-						newMarker.setAddress("address=\"Speed:" + jd.getSpeed()
+						newMarker.setAddress("Speed:" + jd.getSpeed()
 								+ "km/h\"");
-						newMarker.setLat("lat=" + jd.getLatitude());
-						newMarker.setLng("lng=" + jd.getLongitude());
-						newMarker.setSpeed("speed=" + jd.getSpeed());
-						newMarker.setType("type=" + speedMarker);
+						newMarker.setLat("" + jd.getLatitude());
+						newMarker.setLng("" + jd.getLongitude());
+						newMarker.setSpeed("" + jd.getSpeed());
+						newMarker.setType("" + speedMarker);
 						markersList.add(newMarker);
 					}
 				}
@@ -246,7 +250,7 @@ public class MgmtAppController {
 				// Skip
 			}
 
-			markers.setMarkers(markersList);
+			markers.setMarker(markersList);
 		}
 
 		return markers;

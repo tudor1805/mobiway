@@ -3,7 +3,7 @@ package ro.pub.acs.traffic.dao;
 import java.util.List;
 
 import org.hibernate.*;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.traffic.model.*;
@@ -22,7 +22,7 @@ public class JourneyDAOImpl implements JourneyDAO {
 	public Journey get(User user) {
 		Criteria criteria = sessionFactory.getCurrentSession()
 				.createCriteria(Journey.class)
-				.add(Restrictions.eq("id_user", user.getId()));
+				.add(Restrictions.eq("idUser", user.getId()));
 
 		Object result = criteria.uniqueResult();
 		Journey journey = null;
@@ -34,9 +34,32 @@ public class JourneyDAOImpl implements JourneyDAO {
 
 	@Override
 	@Transactional
+	public Journey getCurrentJourney(User user) {
+		Journey journey = null;
+
+		DetachedCriteria maxId = DetachedCriteria.forClass(Journey.class)
+				.setProjection(Projections.max("id") );
+
+		try{
+			Criteria criteria = sessionFactory.getCurrentSession()
+				.createCriteria(Journey.class);
+
+			criteria.add(Property.forName("id").eq(maxId));
+			criteria.add(Restrictions.eq("idUser", user));
+
+			journey = (Journey) criteria.list().get(0);
+		} catch(Exception ex) {
+			// ex.printStackTrace();
+		}
+
+		return journey;
+	}
+
+	@Override
+	@Transactional
 	public Journey get(int id) {
 		Criteria criteria = sessionFactory.getCurrentSession()
-				.createCriteria(User.class).add(Restrictions.eq("id", id));
+				.createCriteria(Journey.class).add(Restrictions.eq("id", id));
 
 		Object result = criteria.uniqueResult();
 		Journey journey = null;

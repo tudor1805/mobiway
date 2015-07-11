@@ -1,5 +1,6 @@
 package ro.pub.acs.traffic.dao;
 
+import java.util.*;
 import org.hibernate.*;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,17 @@ public class JourneyDataDAOImpl implements JourneyDataDAO {
 	public JourneyDataDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+
+	@Override
+	@Transactional
+	public List<JourneyData> getByJourneyId(Journey journeyId) {
+		Criteria criteria = sessionFactory.getCurrentSession()
+				.createCriteria(JourneyData.class).add(Restrictions.eq("journeyId", journeyId));
+
+		// @SuppressWarnings("unchecked")
+		return criteria.list();
+	}
+
 
 	@Override
 	@Transactional

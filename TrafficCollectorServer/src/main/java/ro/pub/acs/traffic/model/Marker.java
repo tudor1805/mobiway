@@ -16,7 +16,7 @@ public class Marker {
 		return name;
 	}
 
-	@XmlElement
+	@XmlAttribute
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -25,7 +25,7 @@ public class Marker {
 		return address;
 	}
 
-	@XmlElement
+	@XmlAttribute
 	public void setAddress(String address) {
 		this.address = address;
 	}
@@ -34,7 +34,7 @@ public class Marker {
 		return lat;
 	}
 
-	@XmlElement
+	@XmlAttribute
 	public void setLat(String lat) {
 		this.lat = lat;
 	}
@@ -43,7 +43,7 @@ public class Marker {
 		return lng;
 	}
 
-	@XmlElement
+	@XmlAttribute
 	public void setLng(String lng) {
 		this.lng = lng;
 	}
@@ -52,7 +52,7 @@ public class Marker {
 		return speed;
 	}
 
-	@XmlElement
+	@XmlAttribute
 	public void setSpeed(String speed) {
 		this.speed = speed;
 	}
@@ -61,7 +61,7 @@ public class Marker {
 		return type;
 	}
 
-	@XmlElement
+	@XmlAttribute
 	public void setType(String type) {
 		this.type = type;
 	}

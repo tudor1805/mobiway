@@ -6,15 +6,14 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "markers")
 public class Markers {
 
-	private List<Marker> markers;
+	private List<Marker> marker;
 
-	public List<Marker> getMarkers() {
-		return markers;
+	public List<Marker> getMarker() {
+		return marker;
 	}
 
 	@XmlElement
-	public void setMarkers(List<Marker> markers) {
-		this.markers = markers;
+	public void setMarker(List<Marker> marker) {
+		this.marker = marker;
 	}
-
 }

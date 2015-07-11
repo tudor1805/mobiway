@@ -1,9 +1,6 @@
 package ro.pub.acs.traffic.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -26,13 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ro.pub.acs.traffic.dao.LocationDAO;
-import ro.pub.acs.traffic.dao.UserContactDAO;
-import ro.pub.acs.traffic.dao.UserDAO;
-import ro.pub.acs.traffic.model.Location;
-import ro.pub.acs.traffic.model.Place;
-import ro.pub.acs.traffic.model.User;
-import ro.pub.acs.traffic.model.UserContact;
+import ro.pub.acs.traffic.dao.*;
+import ro.pub.acs.traffic.model.*;
 import ro.pub.acs.traffic.utils.Constants;
 
 @RestController
@@ -47,6 +39,12 @@ public class ServicesController {
 
 	@Autowired
 	private UserContactDAO userContactDAO;
+
+	@Autowired
+	private JourneyDAO journeyDAO;
+
+	@Autowired
+	private JourneyDataDAO journeyDataDAO;
 
 	@RequestMapping(value = "user/getUser/{userId}", method = RequestMethod.GET)
 	public @ResponseBody User getUser(@PathVariable int userId) {
@@ -152,7 +150,24 @@ public class ServicesController {
 
 		return oldUser;
 	}
-	
+
+	@RequestMapping(value = "/location/newJourney", method = RequestMethod.POST)
+	public @ResponseBody boolean updateLocation(@RequestBody Integer userId,
+			@RequestHeader("X-Auth-Token") String authToken) {
+		User user = userDAO.get(authToken, userId);
+
+		if (user != null) {
+			Journey journey = new Journey();
+			journey.setIdUser(user);
+			journey.setJourneyName("journey_" + Calendar.getInstance().getTimeInMillis());
+			journeyDAO.add(journey);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
 	public @ResponseBody boolean updateLocation(@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {
@@ -160,16 +175,29 @@ public class ServicesController {
 
 		if (user != null) {
 			Location locationUser = locationDAO.getLocation(user);
+			Date currentDate = new Date();
+
 			if (locationUser != null) {
 				locationUser.setLatitude(location.getLatitude());
 				locationUser.setLongitude(location.getLongitude());
 				locationUser.setSpeed(location.getSpeed());
-				locationUser.setTimestamp(new Date());
+				locationUser.setTimestamp(currentDate);
 				locationDAO.updateLocation(locationUser);
 			} else {
 				location.setIdUser(user.getId());
 				location.setTimestamp(new Date());
 				locationDAO.addLocation(location);
+			}
+
+			Journey lastJourney = journeyDAO.getCurrentJourney(user);
+			if (lastJourney != null) {
+				JourneyData journeyData = new JourneyData();
+				journeyData.setJourneyId(lastJourney);
+				journeyData.setLatitude(location.getLatitude());
+				journeyData.setLongitude(location.getLongitude());
+				journeyData.setSpeed(location.getSpeed());
+				journeyData.setTimestamp(currentDate);
+				journeyDataDAO.add(journeyData);
 			}
 
 			return true;
