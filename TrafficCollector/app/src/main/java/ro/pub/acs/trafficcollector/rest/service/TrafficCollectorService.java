@@ -53,6 +53,13 @@ public interface TrafficCollectorService {
             "Content-Type: application/json",
             "Accept: application/json"
     })
+    @POST(Constants.URL_NEW_JOURNEY)
+    boolean newJourney(@Body Integer userId);
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
     @PUT(Constants.URL_UPDATE_LOCATION)
     boolean updateLocation(@Body Location location);
 

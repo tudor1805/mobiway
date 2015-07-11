@@ -23,6 +23,7 @@ public abstract class Constants {
     public static final String URL_CREATE_ACCOUNT = "/signup/userpass";
     public static final String URL_UPDATE_USER = "/user/update";
     public static final String URL_GET_USER = "/user/getUser";
+    public static final String URL_NEW_JOURNEY = "/location/newJourney";
     public static final String URL_UPDATE_LOCATION = "/location/update";
     public static final String URL_GET_FRIENDS_NAMES = "/social/getFriendsNames";
     public static final String URL_GET_FRIENDS_LOCATIONS = "/social/getFriendsLocations";
