@@ -1,0 +1,166 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+
+    <PreferenceCategory
+        android:persistent="true"
+        android:title="General">
+
+        <EditTextPreference
+            android:id="@+id/editTextAccount"
+            android:clickable="false"
+            android:editable="false"
+            android:enabled="false"
+            android:key="@string/key_account_preference"
+            android:title="@string/account" />
+
+        <SwitchPreference
+            android:id="@+id/switchPreferencesLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="true"
+            android:key="@string/key_location_preference"
+            android:summary="@string/send_notification_to_server"
+            android:title="@string/location_updates" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:id="@+id/categoriesPreferenceScreen"
+        android:key="@string/key_categories_screen"
+        android:persistent="true"
+        android:title="@string/categories">
+
+        <CheckBoxPreference
+            android:id="@+id/bar_checkbox"
+            android:key="bar"
+            android:persistent="true"
+            android:title="Bar" />
+        <CheckBoxPreference
+            android:id="@+id/cafe_checkbox"
+            android:key="cafe"
+            android:persistent="true"
+            android:title="Cafe" />
+        <CheckBoxPreference
+            android:id="@+id/fast_food_checkbox"
+            android:key="fast_food"
+            android:persistent="true"
+            android:title="Fast Food" />
+        <CheckBoxPreference
+            android:id="@+id/restaurant_checkbox"
+            android:key="restaurant"
+            android:persistent="true"
+            android:title="Restaurant" />
+        <CheckBoxPreference
+            android:id="@+id/pub_checkbox"
+            android:key="pub"
+            android:persistent="true"
+            android:title="Pub" />
+
+        <CheckBoxPreference
+            android:id="@+id/school_checkbox"
+            android:key="school"
+            android:persistent="true"
+            android:title="School" />
+        <CheckBoxPreference
+            android:id="@+id/college_checkbox"
+            android:key="college"
+            android:persistent="true"
+            android:title="College" />
+        <CheckBoxPreference
+            android:id="@+id/library_checkbox"
+            android:key="library"
+            android:persistent="true"
+            android:title="Library" />
+        <CheckBoxPreference
+            android:id="@+id/university_checkbox"
+            android:key="university"
+            android:persistent="true"
+            android:title="University" />
+
+        <CheckBoxPreference
+            android:id="@+id/fuel_checkbox"
+            android:key="fuel"
+            android:persistent="true"
+            android:title="Fuel" />
+        <CheckBoxPreference
+            android:id="@+id/taxi_checkbox"
+            android:key="taxi"
+            android:persistent="true"
+            android:title="Taxi" />
+        <CheckBoxPreference
+            android:id="@+id/car_wash_checkbox"
+            android:key="car_wash"
+            android:persistent="true"
+            android:title="Car Wash" />
+
+        <CheckBoxPreference
+            android:id="@+id/atm_checkbox"
+            android:key="atm"
+            android:persistent="true"
+            android:title="ATM" />
+        <CheckBoxPreference
+            android:id="@+id/bank_checkbox"
+            android:key="bank"
+            android:persistent="true"
+            android:title="Bank" />
+
+        <CheckBoxPreference
+            android:id="@+id/clinic_checkbox"
+            android:key="clinic"
+            android:persistent="true"
+            android:title="Clinic" />
+        <CheckBoxPreference
+            android:id="@+id/dentist_checkbox"
+            android:key="dentist"
+            android:persistent="true"
+            android:title="Dentist" />
+        <CheckBoxPreference
+            android:id="@+id/hospital_checkbox"
+            android:key="hospital"
+            android:persistent="true"
+            android:title="Hospital" />
+        <CheckBoxPreference
+            android:id="@+id/pharmacy_checkbox"
+            android:key="pharmacy"
+            android:persistent="true"
+            android:title="Pharmacy" />
+
+        <CheckBoxPreference
+            android:id="@+id/cinema_checkbox"
+            android:key="cinema"
+            android:persistent="true"
+            android:title="Cinema" />
+        <CheckBoxPreference
+            android:id="@+id/night_club_checkbox"
+            android:key="night_club"
+            android:persistent="true"
+            android:title="Night Club" />
+        <CheckBoxPreference
+            android:id="@+id/theatre_checkbox"
+            android:key="theatre"
+            android:persistent="true"
+            android:title="Theatre" />
+        <CheckBoxPreference
+            android:id="@+id/gym_checkbox"
+            android:key="gym"
+            android:persistent="true"
+            android:title="Gym" />
+        <CheckBoxPreference
+            android:id="@+id/marketplace_checkbox"
+            android:key="marketplace"
+            android:persistent="true"
+            android:title="Marketplace" />
+        <CheckBoxPreference
+            android:id="@+id/police_checkbox"
+            android:key="police"
+            android:persistent="true"
+            android:title="Police" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,39 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity" />
+
+    <Button
+        android:id="@+id/button_hide_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:background="@drawable/login_button_shape"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="@string/hide_routes"
+        android:textColor="@color/custom_text_theme_color"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/button_show_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:background="@drawable/login_button_shape"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="@string/show_route"
+        android:textColor="@color/custom_text_theme_color"
+        android:visibility="gone" />
+
+</FrameLayout>
