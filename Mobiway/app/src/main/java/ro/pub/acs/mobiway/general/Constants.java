@@ -49,6 +49,9 @@ public abstract class Constants {
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_LONGITUDE = "longitude";
     public static final String KEY_NOTIFICATIONS_ENABLED = "notifEnabled";
+    public static final String KEY_SHARE_LOCATION = "shareLocation";
+    public static final String KEY_SHARE_SPEED = "shareSpeed";
     public static final String KEY_FIRST_TIME_USE = "firstTimeUse";
+    public static final String KEY_LOC_PREFERENCES = "locationPreferences";
 
 }

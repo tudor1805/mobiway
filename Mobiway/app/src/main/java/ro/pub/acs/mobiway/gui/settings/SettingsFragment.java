@@ -2,13 +2,9 @@ package ro.pub.acs.mobiway.gui.settings;
 
 
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
+import android.preference.*;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import ro.pub.acs.mobiway.R;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
@@ -16,8 +12,10 @@ import ro.pub.acs.mobiway.gui.main.MainActivity;
 
 public class SettingsFragment extends PreferenceFragment {
 
-    private ArrayList<String> categories =  new ArrayList<>();
-    private ArrayList<String> checkedCategories =  new ArrayList<>();
+    private final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
+
+    private ArrayList<String> categories = new ArrayList<>();
+    private ArrayList<String> checkedCategories = new ArrayList<>();
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -28,7 +26,6 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
 
-        final SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
         final EditTextPreference etp = (EditTextPreference) findPreference(getResources().getString(R.string.key_account_preference));
         final SwitchPreference sp = (SwitchPreference) findPreference(getResources().getString(R.string.key_location_preference));
 
@@ -44,21 +41,20 @@ public class SettingsFragment extends PreferenceFragment {
         setListeners();
     }
 
-    private void getPreferences(){
-        if(MainActivity.prefList == null)
-            MainActivity.prefList = new ArrayList();
-        else
-            MainActivity.prefList.clear();
+    private void getPreferences() {
+        Set<String> userLocPreferences = new HashSet<>();
 
-        for (String category : categories){
+        for (String category : categories) {
             CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(category);
-            if(checkBoxPreference.isChecked()){
-                MainActivity.prefList.add(category);
+            if (checkBoxPreference.isChecked()) {
+                userLocPreferences.add(category);
             }
         }
+
+        spm.setUserLocPreferences(userLocPreferences);
     }
 
-    private void setListeners(){
+    private void setListeners() {
         categories.add("bar");
         categories.add("cafe");
         categories.add("fast_food");
@@ -84,7 +80,7 @@ public class SettingsFragment extends PreferenceFragment {
         categories.add("marketplace");
         categories.add("police");
 
-        for (String category : categories){
+        for (String category : categories) {
             CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(category);
             checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {

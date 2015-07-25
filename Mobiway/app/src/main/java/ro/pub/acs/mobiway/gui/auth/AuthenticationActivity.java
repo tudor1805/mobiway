@@ -67,7 +67,8 @@ public class AuthenticationActivity extends ActionBarActivity implements Fragmen
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.container, new LoginFragment());
+            //fragmentTransaction.add(R.id.container, new LoginFragment());
+            fragmentTransaction.add(R.id.container, new PolicyFragment());
             fragmentTransaction.commit();
 
             fragmentManager.addOnBackStackChangedListener(this);

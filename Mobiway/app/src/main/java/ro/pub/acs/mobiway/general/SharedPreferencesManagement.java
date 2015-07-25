@@ -1,10 +1,8 @@
 package ro.pub.acs.mobiway.general;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 
-import java.util.Date;
+import java.util.*;
 
 import ro.pub.acs.mobiway.gui.auth.AuthenticationActivity;
 
@@ -49,9 +47,9 @@ public class SharedPreferencesManagement {
                                    String lastName, String email, String password, String firstName,
                                    String token,
                                    long expiresOn) {
-    	/* create new session */
+        /* create new session */
         editor.putBoolean(Constants.IS_LOGGED_IN, true);
-        
+
         editor.putInt(Constants.KEY_USER_ID, userId);
 
         editor.putString(Constants.KEY_EMAIL, email);
@@ -132,6 +130,33 @@ public class SharedPreferencesManagement {
         editor.commit();
     }
 
+    public boolean getShareLocationEnabled() {
+        return pref.getBoolean(Constants.KEY_SHARE_LOCATION, true);
+    }
+
+    public void setShareLocationEnabled(boolean value) {
+        editor.putBoolean(Constants.KEY_SHARE_LOCATION, value);
+        editor.commit();
+    }
+
+    public boolean getShareSpeedEnabled() {
+        return pref.getBoolean(Constants.KEY_SHARE_SPEED, true);
+    }
+
+    public void setShareSpeedEnabled(boolean value) {
+        editor.putBoolean(Constants.KEY_SHARE_SPEED, value);
+        editor.commit();
+    }
+
+    public Set<String> getUserLocPreferences() {
+        return pref.getStringSet(Constants.KEY_LOC_PREFERENCES, new HashSet<String>());
+    }
+
+    public void setUserLocPreferences(Set<String> userLocPreferences) {
+        editor.putStringSet(Constants.KEY_LOC_PREFERENCES, userLocPreferences);
+        editor.commit();
+    }
+
     /**
      * Clear session details
      */
@@ -165,7 +190,7 @@ public class SharedPreferencesManagement {
         long expiresOn = pref.getLong(Constants.KEY_EXPIRES_ON, 0);
         long now = new Date().getTime() / 1000;
 
-        if(expiresOn != 0){
+        if (expiresOn != 0) {
             return loggedIn && expiresOn > now;
         } else {
             return loggedIn;
@@ -196,7 +221,7 @@ public class SharedPreferencesManagement {
         return token;
     }
 
-    public boolean isFirstTimeUse(){
+    public boolean isFirstTimeUse() {
         return pref.getBoolean(Constants.KEY_FIRST_TIME_USE, true);
     }
 

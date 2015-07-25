@@ -5,8 +5,17 @@ android {
         config {
             keyAlias 'android'
             keyPassword 'android'
-            storeFile file('C:/Users/Tudor/.android/debug.keystore')
+            storeFile file('keystores/debug.keystore')
             storePassword 'android'
+        }
+        debug {
+            storeFile file('keystores/debug.keystore')
+        }
+        release {
+            storeFile file('keystores/release.keystore')
+            storePassword 'android'
+            keyAlias 'android'
+            keyPassword 'android'
         }
     }
     compileSdkVersion 22
@@ -21,9 +30,12 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
+            signingConfig signingConfigs.debug
+            debuggable true
         }
     }
 }

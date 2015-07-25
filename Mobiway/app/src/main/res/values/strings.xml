@@ -1,7 +1,7 @@
 <resources>
 
     <string name="app_name">Mobiway</string>
-    <string name="facebook_app_id">1583611691898292</string>
+    <string name="facebook_app_id">1621327204776333</string>
 
     <!-- Activity title -->
     <string name="title_activity_main">Map</string>
@@ -52,8 +52,11 @@
     Without it, you cannot see your friends in this app.</string>
     <string name="login_button_content">LOG IN</string>
     <string name="create_account_button_content"> CREATE ACCOUNT </string>
+    <string name="accept_policy_button_content"> ACCEPT POLICY </string>
     <string name="create_account_action_bar_content">Create Account</string>
     <string name="authentication_error">E-mail or password is incorrect!</string>
+    <string name="share_location">Share My Location</string>
+    <string name="share_speed">Share My Speed</string>
     <string name="firstName">First name</string>
     <string name="lastName">Last name</string>
     <string name="done">DONE</string>

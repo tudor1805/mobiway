@@ -3,8 +3,7 @@
     android:id="@+id/activity_settings_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/custom_background_main_theme_color"
-    tools:context="xyz.mydog.gui.settings.SettingsActivity">
+    tools:context="ro.pub.acs.mobiway.gui.settings.SettingsActivity">
 
 
 </FrameLayout>

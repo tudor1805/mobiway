@@ -32,9 +32,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
@@ -50,7 +48,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static ArrayList<String> prefList = null;
     private static ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationArrayList = new ArrayList<>();
     private static List<User> friendsNames = null;
     private static List<ro.pub.acs.mobiway.rest.model.Location> friendsLocations = null;
@@ -65,7 +62,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     private Button showRouteButton;
     private Button hideRouteButton;
-    private ArrayList<Polyline> aPolyline= new ArrayList<>();
+    private ArrayList<Polyline> aPolyline = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,15 +84,14 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         locationRequest.setFastestInterval(Constants.LOCATION_REQUEST_FASTEST_INTERVAL);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        if(sharedPreferencesManagement.isFirstTimeUse()) {
+        if (sharedPreferencesManagement.isFirstTimeUse()) {
             getContacts();
             sharedPreferencesManagement.setFirstTimeUse();
-        } else{
+        } else {
             getFriends();
         }
 
-        if (prefList != null)
-            getNearbyLocations();
+        getNearbyLocations();
 
         showRouteButton = (Button) findViewById(R.id.button_show_route);
         showRouteButton.setOnClickListener(new View.OnClickListener() {
@@ -110,7 +106,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             ArrayList<ro.pub.acs.mobiway.rest.model.Location> locations = new ArrayList<>();
                             ro.pub.acs.mobiway.rest.model.Location location1 = new ro.pub.acs.mobiway.rest.model.Location();
                             ro.pub.acs.mobiway.rest.model.Location location2 = new ro.pub.acs.mobiway.rest.model.Location();
-                            location1.setLatitude((float)lastLocation.getLatitude());
+                            location1.setLatitude((float) lastLocation.getLatitude());
                             location1.setLongitude((float) lastLocation.getLongitude());
                             location2.setLatitude((float) latLngMarker.latitude);
                             location2.setLongitude((float) latLngMarker.longitude);
@@ -133,7 +129,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         hideRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(Polyline polyline : aPolyline){
+                for (Polyline polyline : aPolyline) {
                     polyline.remove();
                 }
                 aPolyline.clear();
@@ -379,9 +375,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                     friendsNames = restClient.getApiService().getFriendsNames();
                     friendsLocations = restClient.getApiService().getFriendsLocations();
 
-                    Log.e(TAG, "friends: " + friendsNames);
-                    Log.e(TAG, "friends: " + friendsLocations);
-
                     showFriendsOnMap();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -413,6 +406,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void getNearbyLocations() {
+        Set<String> locPref = sharedPreferencesManagement.getUserLocPreferences();
+        final ArrayList<String> prefList = new ArrayList<>();
+        prefList.addAll(locPref);
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -443,7 +440,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         });
     }
 
-    private void showRouteOnMap(final List<ro.pub.acs.mobiway.rest.model.Location> points){
+    private void showRouteOnMap(final List<ro.pub.acs.mobiway.rest.model.Location> points) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
