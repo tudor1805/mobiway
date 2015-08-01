@@ -36,5 +36,16 @@
 			<ref bean="sessionFactory" />
 		</constructor-arg>
 	</bean>
-	
+
+	<bean id="policyDao" class="ro.pub.acs.mobiway.dao.PolicyDAOImpl">
+		<constructor-arg>
+			<ref bean="sessionFactory" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="userPolicyDao" class="ro.pub.acs.mobiway.dao.UserPolicyDAOImpl">
+		<constructor-arg>
+			<ref bean="sessionFactory" />
+		</constructor-arg>
+	</bean>
 </beans>

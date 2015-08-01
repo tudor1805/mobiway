@@ -26,14 +26,12 @@ public class User implements Serializable {
 	private String password;
 
 	@Basic(optional = false)
-	@NotNull
 	@Lob
 	@Size(min = 1, max = 65535)
 	@Column(name = "firstname")
 	private String firstname;
 
 	@Basic(optional = false)
-	@NotNull
 	@Lob
 	@Size(min = 1, max = 65535)
 	@Column(name = "lastname")

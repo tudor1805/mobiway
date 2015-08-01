@@ -3,7 +3,7 @@ package ro.pub.acs.mobiway.model;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 @Entity
 @Table(name = "journey_data")
@@ -35,6 +35,12 @@ public class JourneyData implements Serializable {
 	@Column(name = "timestamp")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date timestamp;
+
+ 	@Basic(optional = false)
+	@Lob
+	@Size(min = 1, max = 65535)
+	@Column(name = "osm_way_id")
+	private String osmWayId;
 
 	@JoinColumn(name = "journey_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
@@ -94,6 +100,14 @@ public class JourneyData implements Serializable {
 
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public String getOsmWayId() {
+		return osmWayId;
+	}
+
+	public void setOsmWayId(String osmWayId) {
+		this.osmWayId = osmWayId;
 	}
 
 	public Journey getJourneyId() {

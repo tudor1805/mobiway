@@ -32,6 +32,8 @@
 				<value>ro.pub.acs.mobiway.model.Journey</value>
 				<value>ro.pub.acs.mobiway.model.JourneyData</value>
 				<value>ro.pub.acs.mobiway.model.Location</value>
+				<value>ro.pub.acs.mobiway.model.Policy</value>
+				<value>ro.pub.acs.mobiway.model.UserPolicy</value>
 			</list>
 		</property>
 	</bean>

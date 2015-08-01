@@ -38,6 +38,12 @@ public class ServicesController {
 	@Autowired
 	private JourneyDataDAO journeyDataDAO;
 
+	@Autowired
+	private PolicyDAO policyDAO;
+
+	@Autowired
+	private UserPolicyDAO userPolicyDAO;
+
 	@RequestMapping(value = "user/getUser/{userId}", method = RequestMethod.GET)
 	public @ResponseBody User getUser(@PathVariable int userId) {
 		User user = userDAO.get(userId);
@@ -69,6 +75,64 @@ public class ServicesController {
 		return newUser;
 	}
 
+	@RequestMapping(
+		value = "/authenticate/getPolicyListForApp/{appId}",
+		method = RequestMethod.GET)
+	public @ResponseBody List<Policy> getPolicyListForApp(
+			@PathVariable String appId) {
+
+		List<Policy> policies = policyDAO.list(appId);
+		return policies;
+	}
+
+	@RequestMapping(
+		value = "/authenticate/getUserPolicyListForApp/{userId}/{appId}",
+		method = RequestMethod.GET)
+	public @ResponseBody List<Policy> getUserPolicyListForApp(
+			@PathVariable Integer userId,
+			@PathVariable String appId,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		List <Policy> acceptedPolicies = new ArrayList<Policy>();
+
+	        User user = userDAO.get(authToken, userId);
+		if (user != null) {
+			List<UserPolicy> userPolicies =
+			userPolicyDAO.getUserAcceptedPoliciesByApp(user, appId);
+
+			for (UserPolicy userp : userPolicies) {
+				Policy policy = policyDAO.get(userp.getId());
+				acceptedPolicies.add(policy);
+			}
+		}
+
+		return acceptedPolicies;
+	}
+
+	@RequestMapping(value = "/authenticate/acceptUserPolicyListForApp/{userId}/{appId}",
+		       	method = RequestMethod.POST)
+	public @ResponseBody boolean acceptPolicyListForApp(
+			 @PathVariable Integer userId,
+			 @PathVariable String appId,
+			 @RequestHeader("X-Auth-Token") String authToken,
+			 @RequestBody List<String> policyList) {
+
+		User user = userDAO.get(authToken, userId);
+		if (user != null) {
+			userPolicyDAO.clearPolicies(user, appId);
+			for (String policyName : policyList) {
+				Policy policy = policyDAO.get(policyName, appId);
+				UserPolicy up = new UserPolicy();
+				up.setIdUser(user);
+				up.setAppId(appId);
+				up.setIdPolicy(policy);
+				userPolicyDAO.add(up);
+			}
+		}
+
+		return true;
+	}
+
 	@RequestMapping(value = "/authenticate/facebook", method = RequestMethod.POST)
 	public @ResponseBody User loginWithFacebook(@RequestBody User user) {
 		/* Get Facebook profile */
@@ -91,7 +155,7 @@ public class ServicesController {
 
 		/* Save and return the new user */
 		int userId;
-		
+	
 		/* Update user into database */
 		User oldUser = userDAO.get(user.getUsername());
 		if (oldUser != null) {
@@ -100,7 +164,7 @@ public class ServicesController {
 		} else {
 			userId = userDAO.add(user);
 		}
-		
+
 		User newUser = userDAO.get(userId);
 
 		/* Get friend from Facebook and insert into database */
@@ -144,7 +208,7 @@ public class ServicesController {
 	}
 
 	@RequestMapping(value = "/location/newJourney", method = RequestMethod.POST)
-	public @ResponseBody boolean updateLocation(@RequestBody Integer userId,
+	public @ResponseBody boolean newJourney(@RequestBody Integer userId,
 			@RequestHeader("X-Auth-Token") String authToken) {
 		User user = userDAO.get(authToken, userId);
 
@@ -189,6 +253,35 @@ public class ServicesController {
 				journeyData.setLongitude(location.getLongitude());
 				journeyData.setSpeed(location.getSpeed());
 				journeyData.setTimestamp(currentDate);
+
+				/* Set the OSM id (used later)*/
+				String osmId = null;
+				try {
+					HttpClient httpClient = new DefaultHttpClient();
+
+					/* Perform Reverse Geocoding for a location */
+					StringBuilder url = new StringBuilder();
+					url.append(Constants.URL_NOMINATIM_API_LOCAL);
+					// url.append(Constants.URL_NOMINATIM_API);
+					// url.append("/reverse?format=json&zoom=18&addressdetails=0");
+					url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
+					url.append("&lat=" + location.getLatitude());
+					url.append("&lon=" + location.getLongitude());
+				
+					HttpGet httpGet = new HttpGet(url.toString());
+					HttpResponse httpGetResponse = httpClient.execute(httpGet);
+					HttpEntity httpGetEntity = httpGetResponse.getEntity();
+			
+					if (httpGetEntity != null) {  
+						String response = EntityUtils.toString(httpGetEntity);
+						JSONObject nodeData = new JSONObject(response);
+						osmId = nodeData.getString("osm_id");
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+				journeyData.setOsmWayId(osmId);
+
 				journeyDataDAO.add(journeyData);
 			}
 
@@ -280,10 +373,10 @@ public class ServicesController {
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody List<String> types) {
 		ArrayList<Place> aPlace = new ArrayList<Place>();
-		
+
 		for(String type : types){
 			JSONArray places = new JSONArray();
-			
+
 			try {
 				HttpClient httpClient = new DefaultHttpClient();
 				StringBuilder url = new StringBuilder();
@@ -291,24 +384,24 @@ public class ServicesController {
 				url.append(type + "&limit=50");
 				
 				HttpGet httpGet = new HttpGet(url.toString());
-			    HttpResponse httpGetResponse = httpClient.execute(httpGet);
-			    HttpEntity httpGetEntity = httpGetResponse.getEntity();
-			    
-			    if (httpGetEntity != null) {  
-			    	String response = EntityUtils.toString(httpGetEntity);
-			    	places = new JSONArray(response);
-			    	
-			    	for(int i = 0; i < places.length(); i++){
-			    		JSONObject placeObj = places.getJSONObject(i);
-			    		Place place = new Place();
-			    		place.setType(placeObj.getString("type"));
-			    		place.setName(placeObj.getString("display_name"));
-			    		place.setLatitude(Float.parseFloat(placeObj.getString("lat")));
-			    		place.setLongitude(Float.parseFloat(placeObj.getString("lon")));
-			    		
-			    		aPlace.add(place);
-			    	}
-			    }            
+				HttpResponse httpGetResponse = httpClient.execute(httpGet);
+				HttpEntity httpGetEntity = httpGetResponse.getEntity();
+		
+				if (httpGetEntity != null) {  
+					String response = EntityUtils.toString(httpGetEntity);
+					places = new JSONArray(response);
+
+					for(int i = 0; i < places.length(); i++){
+						JSONObject placeObj = places.getJSONObject(i);
+						Place place = new Place();
+						place.setType(placeObj.getString("type"));
+						place.setName(placeObj.getString("display_name"));
+						place.setLatitude(Float.parseFloat(placeObj.getString("lat")));
+						place.setLongitude(Float.parseFloat(placeObj.getString("lon")));
+
+						aPlace.add(place);
+					}
+				}
 			} catch (Exception exception) {
 			    exception.printStackTrace();
 			}
@@ -323,49 +416,47 @@ public class ServicesController {
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
-		
+
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
 			url.append(Constants.URL_OSRM_API + "/viaroute?loc=");
 			url.append(locations.get(0).getLatitude()+","+locations.get(0).getLongitude()+"&loc=");
 			url.append(locations.get(1).getLatitude()+","+locations.get(1).getLongitude()+"&instructions=true&compression=false");
-		
+
 			HttpGet httpGet = new HttpGet(url.toString());
-		    HttpResponse httpGetResponse = httpClient.execute(httpGet);
-		    HttpEntity httpGetEntity = httpGetResponse.getEntity();
-		    
-		    if (httpGetEntity != null) {  
-		    	String response = EntityUtils.toString(httpGetEntity);
+			HttpResponse httpGetResponse = httpClient.execute(httpGet);
+			HttpEntity httpGetEntity = httpGetResponse.getEntity();
 
-		    	JSONObject route = new JSONObject(response);
-		    	JSONArray viaPoints = route.getJSONArray("route_geometry");
-		    	
-		    	if(viaPoints != null){
-		    		routePoints.add(locations.get(0));
-		    		for(int i = 0; i < viaPoints.length(); i++){
-			    		String point = viaPoints.getString(i);
-			    	
-			    		Location location = new Location();
-			    		location.setIdUser(0);
+			if (httpGetEntity != null) {  
+				String response = EntityUtils.toString(httpGetEntity);
 
-                                        JSONArray coord = viaPoints.getJSONArray(i);
-					location.setLatitude((float)coord.getDouble(0));
-	  		                location.setLongitude((float)coord.getDouble(1));
+				JSONObject route = new JSONObject(response);
+				JSONArray viaPoints = route.getJSONArray("route_geometry");
 
-			    		location.setSpeed(0);
-			    		
-			    		routePoints.add(location);
-			    	}
-		    		routePoints.add(locations.get(1));
-		    	}
-		    	
-		    }            
+				if(viaPoints != null){
+					routePoints.add(locations.get(0));
+					for(int i = 0; i < viaPoints.length(); i++){
+						String point = viaPoints.getString(i);
+
+						Location location = new Location();
+						location.setIdUser(0);
+
+						JSONArray coord = viaPoints.getJSONArray(i);
+						location.setLatitude((float)coord.getDouble(0));
+						location.setLongitude((float)coord.getDouble(1));
+
+						location.setSpeed(0);
+						routePoints.add(location);
+					}
+					routePoints.add(locations.get(1));
+				}
+			}
 		} catch (Exception exception) {
-		    exception.printStackTrace();
+			exception.printStackTrace();
 		}
 		
 		return routePoints;
 	}
-	
+
 }
