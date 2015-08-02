@@ -36,10 +36,8 @@ public class JourneyData implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date timestamp;
 
- 	@Basic(optional = false)
 	@Lob
-	@Size(min = 1, max = 65535)
-	@Column(name = "osm_way_id")
+	@Column(name = "osm_way_id", nullable = true)
 	private String osmWayId;
 
 	@JoinColumn(name = "journey_id", referencedColumnName = "id")
