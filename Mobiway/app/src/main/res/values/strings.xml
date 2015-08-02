@@ -27,6 +27,7 @@
     <string name="account">Account</string>
     <string name="language">Language</string>
     <string name="location_updates">Location</string>
+    <string name="policy_settings">Policy Settings</string>
     <string name="categories">Categories for points of interest</string>
 
     <string name="key_language_preference">key_language_preference</string>
@@ -65,4 +66,32 @@
     <!-- Map -->
     <string name="show_route">Show Route</string>
     <string name="hide_routes">Hide Routes</string>
+
+    <string-array name="user_loc">
+        <item>bar</item>
+        <item>cafe</item>
+        <item>fast_food</item>
+        <item>restaurant</item>
+        <item>pub</item>
+        <item>school</item>
+        <item>college</item>
+        <item>library</item>
+        <item>university</item>
+        <item>fuel</item>
+        <item>taxi</item>
+        <item>car_wash</item>
+        <item>atm</item>
+        <item>bank</item>
+        <item>clinic</item>
+        <item>dentist</item>
+        <item>hospital</item>
+        <item>pharmacy</item>
+        <item>cinema</item>
+        <item>night_club</item>
+        <item>theatre</item>
+        <item>gym</item>
+        <item>marketplace</item>
+        <item>police</item>
+    </string-array>
+
 </resources>

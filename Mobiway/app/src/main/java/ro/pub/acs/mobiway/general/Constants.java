@@ -13,9 +13,15 @@ public abstract class Constants {
     public static long LOCATION_REQUEST_INTERVAL = 20000;
     public static long LOCATION_REQUEST_FASTEST_INTERVAL = 10000;
 
+
     /*   Application Keys and IDs   */
     /* URLs for WEB Services */
+    public static final String APP_NAME = "Mobiway";
     public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/MobiwayServer/services";
+
+    public static final String URL_GET_POLICY_APP = "/authenticate/getPolicyListForApp";
+    public static final String URL_GET_POLICY_USER_APP = "/authenticate/getUserPolicyListForApp";
+    public static final String URL_ACCEPT_POLICY_APP = "/authenticate/acceptUserPolicyListForApp";
 
     public static final String URL_LOG_IN = "/authenticate/userpass";
     public static final String URL_AUTH_FACEBOOK = "/authenticate/facebook";
@@ -49,9 +55,10 @@ public abstract class Constants {
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_LONGITUDE = "longitude";
     public static final String KEY_NOTIFICATIONS_ENABLED = "notifEnabled";
-    public static final String KEY_SHARE_LOCATION = "shareLocation";
-    public static final String KEY_SHARE_SPEED = "shareSpeed";
+    public static final String KEY_SHARE_LOCATION = "Share Location";
+    public static final String KEY_SHARE_SPEED = "Share Speed";
     public static final String KEY_FIRST_TIME_USE = "firstTimeUse";
     public static final String KEY_LOC_PREFERENCES = "locationPreferences";
+    public static final String KEY_POLICY_PREFERENCES = "policyPreferences";
 
 }

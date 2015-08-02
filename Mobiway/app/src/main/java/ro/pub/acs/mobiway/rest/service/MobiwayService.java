@@ -1,26 +1,48 @@
 package ro.pub.acs.mobiway.rest.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import retrofit.http.Body;
-import retrofit.http.GET;
-import retrofit.http.Headers;
-import retrofit.http.POST;
-import retrofit.http.PUT;
-import retrofit.http.Path;
+import retrofit.http.*;
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.rest.TypedJsonString;
-import ro.pub.acs.mobiway.rest.model.Location;
-import ro.pub.acs.mobiway.rest.model.Place;
-import ro.pub.acs.mobiway.rest.model.User;
+import ro.pub.acs.mobiway.rest.model.*;
 
 public interface MobiwayService {
 
     @Headers({
-                "Content-Type: application/json",
-                "Accept: application/json"
-            })
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @GET(Constants.URL_GET_POLICY_APP + "/{appId}")
+    List<Policy> getPolicyListApp(
+            @Path("appId") String appId
+    );
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @GET(Constants.URL_GET_POLICY_USER_APP + "/{userId}/{appId}")
+    List<Policy> getUserPolicyListApp(
+            @Path("userId") Integer userId,
+            @Path("appId") String appId
+    );
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @POST(Constants.URL_ACCEPT_POLICY_APP + "/{userId}/{appId}")
+    boolean acceptUserPolicyListForApp(
+            @Path("userId") Integer userId,
+            @Path("appId") String appId,
+            @Body List<String> policyList
+    );
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
     @POST(Constants.URL_CREATE_ACCOUNT)
     User createAccount(@Body User body);
 

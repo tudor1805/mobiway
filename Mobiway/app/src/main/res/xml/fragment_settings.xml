@@ -8,6 +8,7 @@
 
 
     <PreferenceCategory
+        android:id="@+id/prefCat"
         android:persistent="true"
         android:title="General">
 
@@ -27,6 +28,13 @@
             android:key="@string/key_location_preference"
             android:summary="@string/send_notification_to_server"
             android:title="@string/location_updates" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:id="@+id/prefPolicy"
+        android:persistent="true"
+        android:title="@string/policy_settings"
+        android:key="@string/policy_settings">
     </PreferenceCategory>
 
     <PreferenceCategory
