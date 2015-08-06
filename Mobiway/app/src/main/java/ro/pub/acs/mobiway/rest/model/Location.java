@@ -5,9 +5,9 @@ import java.util.Date;
 public class Location {
 
     private Integer idUser;
-    private float latitude;
-    private float longitude;
-    private int speed;
+    private Float latitude;
+    private Float longitude;
+    private Integer speed;
     private Date timestamp;
 
     public Location() {
@@ -17,7 +17,7 @@ public class Location {
         this.idUser = idUser;
     }
 
-    public Location(Integer idUser, float latitude, float longitude, int speed,
+    public Location(Integer idUser, Float latitude, Float longitude, Integer speed,
                     Date timestamp) {
         this.idUser = idUser;
         this.latitude = latitude;
@@ -34,27 +34,27 @@ public class Location {
         this.idUser = idUser;
     }
 
-    public float getLatitude() {
+    public Float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(Float latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public Float getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
 
-    public int getSpeed() {
+    public Integer getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(Integer speed) {
         this.speed = speed;
     }
 
