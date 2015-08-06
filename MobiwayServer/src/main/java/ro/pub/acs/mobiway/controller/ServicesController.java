@@ -453,7 +453,9 @@ public class ServicesController {
 				}
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			// Request can fail for a number of reasons
+			// Mainly if the data is not available for the specified coordinates
+			// exception.printStackTrace();
 		}
 		
 		return routePoints;
