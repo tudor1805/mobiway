@@ -122,7 +122,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             locations.add(location2);
 
                             /* getRoute -> OSRM getRoutePG -> PGRouting */
-                            
+
                             // List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
                             List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
                             showRouteOnMap(result);
@@ -258,7 +258,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         checkNetworkConnectivity();
 
         // See if we can connect to the Server
-        runOnUiThread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 boolean canConnect = false;
@@ -285,6 +285,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
             }
         });
+        thread.start();
     }
 
     private void setAcceptedPolicies() {
