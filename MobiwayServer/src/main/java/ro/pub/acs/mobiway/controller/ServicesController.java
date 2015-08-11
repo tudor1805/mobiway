@@ -44,6 +44,11 @@ public class ServicesController {
 	@Autowired
 	private UserPolicyDAO userPolicyDAO;
 
+	@RequestMapping(value = "/checkServerConn", method = RequestMethod.GET)
+	public @ResponseBody boolean checkServerConn() {
+		return true;
+	}
+
 	@RequestMapping(value = "user/getUser/{userId}", method = RequestMethod.GET)
 	public @ResponseBody User getUser(@PathVariable int userId) {
 		User user = userDAO.get(userId);
