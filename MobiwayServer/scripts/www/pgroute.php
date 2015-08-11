@@ -70,7 +70,7 @@ function doRoute($dbcon, $startPoint, $endPoint, $hour) {
 
     while ($row = pg_fetch_row($result)) {
         $way_geom = $row[0];
-        $point_array = getPointArrayFromLinestring($way_geom);
+        getPointArrayFromLinestring($way_geom);
     }
 }
 
@@ -89,7 +89,7 @@ try {
         $endPoint   = array(26.1105126, 44.45294373);
      */
 
-    $src_arg = htmlspecialchars($_GET["src"]); 
+    $src_arg = htmlspecialchars($_GET["src"]);
     $dst_arg = htmlspecialchars($_GET["dst"]);
 
     $startPoint = explode(',', $src_arg);
