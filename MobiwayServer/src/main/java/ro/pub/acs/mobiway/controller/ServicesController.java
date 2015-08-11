@@ -224,6 +224,7 @@ public class ServicesController {
 		return false;
 	}
 
+	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
 	public @ResponseBody boolean updateLocation(@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {
@@ -368,6 +369,7 @@ public class ServicesController {
 		return true;
 	}
 
+	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/social/getNearbyLocations", method = RequestMethod.POST)
 	public @ResponseBody List<Place> getNearbyLocations(
 			@RequestHeader("X-Auth-Token") String authToken,
@@ -411,6 +413,49 @@ public class ServicesController {
 	}
 
 	@SuppressWarnings({ "deprecation", "resource" })
+	@RequestMapping(value = "/social/getRoutePG", method = RequestMethod.POST)
+	public @ResponseBody List<Location> getRoutePgRouting(
+			@RequestHeader("X-Auth-Token") String authToken,
+			@RequestBody ArrayList<Location> locations) {
+		ArrayList<Location> routePoints = new ArrayList<Location>();
+
+		try {
+			HttpClient httpClient = new DefaultHttpClient();
+			StringBuilder url = new StringBuilder();
+			url.append(Constants.URL_PGROUTING_API + "/pgroute.php?");
+			url.append("src=" + locations.get(0).getLatitude() + "," + locations.get(0).getLongitude());
+			url.append("&dst=" + locations.get(1).getLatitude() + "," + locations.get(1).getLongitude());
+
+			HttpGet httpGet = new HttpGet(url.toString());
+			HttpResponse httpGetResponse = httpClient.execute(httpGet);
+			HttpEntity httpGetEntity = httpGetResponse.getEntity();
+
+			if (httpGetEntity != null) {
+				String response = EntityUtils.toString(httpGetEntity);
+				System.out.println("ANSWER:" + response);
+
+				String[] pointLines =
+					response.split(System.getProperty("line.separator"));
+				for (String line : pointLines) {
+					String[] latLng = line.split(" ");
+					Location point = new Location();
+					point.setIdUser(0);
+					point.setLatitude(new Float(latLng[1]));
+					point.setLongitude(new Float(latLng[0]));
+					routePoints.add(point);
+				}
+			}
+
+		} catch (Exception exception) {
+			// Request can fail for a number of reasons
+			// Mainly if the data is not available for the specified coordinates
+			// exception.printStackTrace();
+		}
+
+		return routePoints;
+	}
+
+	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/social/getRoute", method = RequestMethod.POST)
 	public @ResponseBody List<Location> getRoute(
 			@RequestHeader("X-Auth-Token") String authToken,
@@ -420,7 +465,7 @@ public class ServicesController {
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
-			url.append(Constants.URL_OSRM_API + "/viaroute?loc=");
+			url.append(Constants.URL_OSRM_API_LOCAL + "/viaroute?loc=");
 			url.append(locations.get(0).getLatitude()+","+locations.get(0).getLongitude()+"&loc=");
 			url.append(locations.get(1).getLatitude()+","+locations.get(1).getLongitude()+"&instructions=true&compression=false");
 

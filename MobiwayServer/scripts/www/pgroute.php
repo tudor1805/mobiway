@@ -4,14 +4,16 @@
    wget --output-document=test "http://127.0.0.1/pgroute.php?src=44.48998463,26.0272261&dst=44.45294373,26.1105126"
  */
 
-// Constants
+/* Constants */
 define("PG_DB",   "mobiway_pgrouting");
 define("PG_HOST", "127.0.0.1");
 define("PG_USER", "postgres");
-define("PG_PASS", "password");
+define("PG_PASS", "gr0k");
 
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
+/* Enable for debugging 
+    ini_set('display_errors', 'On');
+    error_reporting(E_ALL);
+*/
 
 /* Find the nearest edge - Example
    $startEdge = findNearestEdge($dbcon, $startPoint);
@@ -40,6 +42,7 @@ function findNearestEdge($dbcon, $lonlat) {
 }
 
 function getPointArrayFromLinestring($linestring) {
+
     // Eliminate extra Linestring
     preg_match('!\(([^\)]+)\)!', $linestring, $match);
     $parsed = $match[0];
@@ -52,36 +55,22 @@ function getPointArrayFromLinestring($linestring) {
     $points_arr = explode("," , $parsed2);
 
     foreach ($points_arr as $point) {
-        echo $point . "\n";	
+        echo $point . "\n";
     }
 }
 
-function getWayPoints($dbcon, $way_gid) {
-    $sql = "SELECT ST_AsText(the_geom) 
-            FROM ways
-            WHERE gid =" . $way_gid;
-
-    $result = pg_query($dbcon, $sql);
-    $row = pg_fetch_row($result);
-
-    $way_geom = $row[0];
-
-    $point_array = getPointArrayFromLinestring($way_geom);
-}
-
 function doRoute($dbcon, $startPoint, $endPoint, $hour) {
-    $sql = "SELECT gid FROM pgr_fromAtoB(
-        'ways'," .
-        $startPoint[1] . "," . $startPoint[0] . "," .
-        $endPoint[1] . "," . $endPoint[0] . ")";
+    $sql = "SELECT ST_AsText(geom) FROM pgr_fromAtoB(
+                'ways'," .
+                $startPoint[1] . "," . $startPoint[0] . "," .
+                $endPoint[1]   . "," . $endPoint[0]   . ")";
 
-    // Perform database query
+    // Perform database query to get road geometry
     $result = pg_query($dbcon, $sql);
 
     while ($row = pg_fetch_row($result)) {
-
-        $way_gid = $row[0];
-        getWayPoints($dbcon, $way_gid);
+        $way_geom = $row[0];
+        $point_array = getPointArrayFromLinestring($way_geom);
     }
 }
 
@@ -97,14 +86,17 @@ try {
 
     /* Example
         $startPoint = array(26.0272261, 44.48998463);
-        $endPoint = array(26.1105126, 44.45294373);
+        $endPoint   = array(26.1105126, 44.45294373);
      */
 
-    $startPoint = explode(',', htmlspecialchars($_GET["src"]));
-    $endPoint = explode(',', htmlspecialchars($_GET["dst"]));
+    $src_arg = htmlspecialchars($_GET["src"]); 
+    $dst_arg = htmlspecialchars($_GET["dst"]);
 
-    // echo 'From ' . htmlspecialchars($_GET["src"]), PHP_EOL;
-    // echo 'To   ' . htmlspecialchars($_GET["dst"]), PHP_EOL;
+    $startPoint = explode(',', $src_arg);
+    $endPoint   = explode(',', $dst_arg);
+
+    // echo 'From ' . $src_arg, PHP_EOL;
+    // echo 'To   ' . $dst_arg, PHP_EOL;
 
     doRoute($dbcon, $startPoint, $endPoint, 0);
 } catch (Exception $e) {
