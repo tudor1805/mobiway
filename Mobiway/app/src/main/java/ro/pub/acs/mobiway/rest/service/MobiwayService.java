@@ -9,6 +9,10 @@ import ro.pub.acs.mobiway.rest.model.*;
 
 public interface MobiwayService {
 
+    @GET(Constants.URL_CHECK_SERVER_CONN)
+    boolean checkServerConnectivity(
+    );
+
     @Headers({
             "Content-Type: application/json",
             "Accept: application/json"
@@ -127,4 +131,11 @@ public interface MobiwayService {
     })
     @POST(Constants.URL_GET_ROUTE)
     List<Location> getRoute(@Body ArrayList<Location> locations);
+
+    @Headers({
+            "Content-Type: application/json",
+            "Accept: application/json"
+    })
+    @POST(Constants.URL_GET_ROUTE_PG)
+    List<Location> getRoutePG(@Body ArrayList<Location> locations);
 }

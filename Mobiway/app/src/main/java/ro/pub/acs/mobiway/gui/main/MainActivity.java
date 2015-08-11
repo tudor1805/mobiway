@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
@@ -33,6 +34,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.*;
+
+import javax.xml.datatype.Duration;
 
 import ro.pub.acs.mobiway.general.Constants;
 import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
@@ -71,6 +74,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPreferencesManagement = new SharedPreferencesManagement(getApplicationContext());
+
+        checkServerConnectivity();
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -116,7 +121,10 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                             locations.add(location1);
                             locations.add(location2);
 
-                            List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
+                            /* getRoute -> OSRM getRoutePG -> PGRouting */
+                            
+                            // List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
+                            List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
                             showRouteOnMap(result);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -225,6 +233,58 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void checkNetworkConnectivity() {
+        if (!Util.isNetworkAvailable(this)) {
+            AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
+            dlgAlert.setMessage("\nNo network connectivity" +
+                    "\n\nPlease enable WiFi or" +
+                    "\nMobile Data" +
+                    "\n\n\nGoing to Exit now !");
+            dlgAlert.setTitle("Network Error");
+            dlgAlert.setPositiveButton("Exit Application", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+            dlgAlert.setCancelable(false);
+            dlgAlert.create().show();
+        }
+    }
+
+    private void checkServerConnectivity() {
+        // See if we have WiFi or 4G connectivity
+        checkNetworkConnectivity();
+
+        // See if we can connect to the Server
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                boolean canConnect = false;
+                try {
+                    RestClient restClient = new RestClient();
+                    canConnect = restClient.getApiService().checkServerConnectivity();
+                } catch (Exception ex) {
+                    canConnect = false;
+                }
+
+                if (!canConnect) {
+                    AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MainActivity.this);
+                    dlgAlert.setMessage("\nNo server connectivity" +
+                            "\n\n\nGoing to Exit now !");
+                    dlgAlert.setTitle("Server Connectivity Error");
+                    dlgAlert.setPositiveButton("Exit Application", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    dlgAlert.setCancelable(false);
+                    dlgAlert.create().show();
+                }
+
+            }
+        });
     }
 
     private void setAcceptedPolicies() {
@@ -475,9 +535,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             @Override
             public void run() {
                 PolylineOptions polylineOptions = new PolylineOptions();
+
                 for (ro.pub.acs.mobiway.rest.model.Location point : points) {
                     polylineOptions.add(new LatLng(point.getLatitude(), point.getLongitude()));
                 }
+
                 aPolyline.add(googleMap.addPolyline(polylineOptions));
                 hideRouteButton.setVisibility(View.VISIBLE);
             }

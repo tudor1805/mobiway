@@ -15,10 +15,13 @@ public abstract class Constants {
 
 
     /*   Application Keys and IDs   */
+
+
     /* URLs for WEB Services */
     public static final String APP_NAME = "Mobiway";
     public static final String SERVICES_URL = "http://mobiway.hpc.pub.ro:8082/MobiwayServer/services";
 
+    public static final String URL_CHECK_SERVER_CONN = "/checkServerConn";
     public static final String URL_GET_POLICY_APP = "/authenticate/getPolicyListForApp";
     public static final String URL_GET_POLICY_USER_APP = "/authenticate/getUserPolicyListForApp";
     public static final String URL_ACCEPT_POLICY_APP = "/authenticate/acceptUserPolicyListForApp";
@@ -36,6 +39,7 @@ public abstract class Constants {
     public static final String URL_ADD_FRIENDS = "/social/addFriends";
     public static final String URL_GET_NEARBY_LOCATIONS = "/social/getNearbyLocations";
     public static final String URL_GET_ROUTE = "/social/getRoute";
+    public static final String URL_GET_ROUTE_PG = "/social/getRoutePG";
 
     /* SharedPreferences file name */
     public static final String PREF_NAME = "mobiwayPreferences";
