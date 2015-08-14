@@ -437,7 +437,6 @@ public class ServicesController {
 
 			if (httpGetEntity != null) {
 				String response = EntityUtils.toString(httpGetEntity);
-				System.out.println("ANSWER:" + response);
 
 				String[] pointLines =
 					response.split(System.getProperty("line.separator"));
