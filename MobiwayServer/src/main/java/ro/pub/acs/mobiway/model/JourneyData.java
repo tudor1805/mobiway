@@ -30,11 +30,6 @@ public class JourneyData implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date timestamp;
 
-	@Basic(optional = false)
-	@NotNull
-	@Column(name = "timestamp_unix")
-	private Integer timestampUnix;
-
 	@Lob
 	@Column(name = "osm_way_id", nullable = true)
 	private String osmWayId;
@@ -57,10 +52,6 @@ public class JourneyData implements Serializable {
 		this.longitude = longitude;
 		this.speed = speed;
 		this.timestamp = timestamp;
-
-		// Extract Unix time (seconds) from timestamp
-		this.timestampUnix =
-                    new Integer((int) (timestamp.getTime() / 1000L));
 	}
 
 	public Integer getId() {
@@ -99,17 +90,8 @@ public class JourneyData implements Serializable {
 		return timestamp;
 	}
 
-	public Integer getTimestampUnix() {
-		return timestampUnix;
-	}
-
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
-
-		// Extract Unix time (seconds) from timestamp
-		this.timestampUnix =
-                    new Integer((int) (timestamp.getTime() / 1000L));
-
 	}
 
 	public String getOsmWayId() {

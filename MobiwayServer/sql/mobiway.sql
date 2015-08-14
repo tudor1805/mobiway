@@ -30,7 +30,7 @@ CREATE TABLE `journey` (
   KEY `id_user` (`id_user`),
   KEY `id_user_2` (`id_user`),
   CONSTRAINT `journey_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=369 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=300 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,12 +47,11 @@ CREATE TABLE `journey_data` (
   `longitude` float(10,6) DEFAULT NULL,
   `speed` int(11) DEFAULT NULL,
   `timestamp` datetime NOT NULL,
-  `timestamp_unix` int(11) NOT NULL,
   `osm_way_id` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `journey_id` (`journey_id`),
   CONSTRAINT `journey_data_ibfk_1` FOREIGN KEY (`journey_id`) REFERENCES `journey` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1529 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1213 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +150,7 @@ CREATE TABLE `user_policy` (
   KEY `user_policy_policy_fk_2` (`id_policy`),
   CONSTRAINT `user_policy_policy_fk_2` FOREIGN KEY (`id_policy`) REFERENCES `policy` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_policy_user_fk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=203 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -163,4 +162,4 @@ CREATE TABLE `user_policy` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-08-13 22:24:06
+-- Dump completed on 2015-08-06 22:41:00
