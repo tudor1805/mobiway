@@ -229,6 +229,35 @@ public class ServicesController {
 		return false;
 	}
 
+	private void conformDataToPolicy(User user, String appId, Location location) {
+		List<UserPolicy> userAcceptedPolicies =
+			userPolicyDAO.getUserAcceptedPoliciesByApp(user, appId);
+
+		boolean acceptedShareLocPolicy   = false;
+		boolean acceptedShareSpeedPolicy = false;
+
+		for (UserPolicy up : userAcceptedPolicies) {
+			String policyName = up.getIdPolicy().getPolicyName();
+
+			if (policyName.equals("Share Location")) {
+				acceptedShareLocPolicy = true;
+			}
+
+			if (policyName.equals("Share Speed")) {
+				acceptedShareSpeedPolicy = true;
+			}
+		}
+
+		if (!acceptedShareLocPolicy) {
+			location.setLatitude(null);
+			location.setLongitude(null);
+		}
+
+		if (!acceptedShareSpeedPolicy) {
+			location.setSpeed(null);
+		}
+	}
+
 	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
 	public @ResponseBody boolean updateLocation(@RequestBody Location location,
@@ -236,6 +265,11 @@ public class ServicesController {
 		User user = userDAO.get(authToken, location.getIdUser());
 
 		if (user != null) {
+			String appId = "Mobiway";
+			/* Make sure the published data conform to the user
+			 * accepted policy */
+			conformDataToPolicy(user, appId, location);
+
 			Location locationUser = locationDAO.getLocation(user);
 			Date currentDate = new Date();
 
@@ -320,8 +354,8 @@ public class ServicesController {
 		if (user != null) {
 			friends = userContactDAO.getFriends(user);
 			for (User friend : friends) {
-				Location location = locationDAO
-						.getLocation(friend);
+				Location location =
+					locationDAO.getLocation(friend);
 				if (location != null) {
 					location.setTimestamp(null);
 					locations.add(location);
