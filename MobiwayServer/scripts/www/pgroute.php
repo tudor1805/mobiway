@@ -1,7 +1,8 @@
 <?php
 
 /* Example Usage:
-   wget --output-document=test "http://127.0.0.1/pgroute.php?src=44.48998463,26.0272261&dst=44.45294373,26.1105126"
+    wget --output-document=test "http://127.0.0.1/pgroute.php?src=44.48998463,26.0272261&dst=44.45294373,26.1105126"
+    wget --output-document=test "http://127.0.0.1/pgroute.php?src=44.48998463,26.0272261&dst=44.45294373,26.1105126&hour=4"
  */
 
 /* Constants */
@@ -10,7 +11,8 @@ define("PG_HOST", "127.0.0.1");
 define("PG_USER", "postgres");
 define("PG_PASS", "gr0k");
 
-/* Enable for debugging 
+/* Enable for debugging */
+/*
     ini_set('display_errors', 'On');
     error_reporting(E_ALL);
 */
@@ -60,8 +62,10 @@ function getPointArrayFromLinestring($linestring) {
 }
 
 function doRoute($dbcon, $startPoint, $endPoint, $hour) {
+    $selected_column = sprintf("practical_speed_forw_%02d", $hour);
     $sql = "SELECT ST_AsText(geom) FROM pgr_fromAtoB(
-                'ways'," .
+                'ways'" . "," .
+                "'". $selected_column ."'" . "," .
                 $startPoint[1] . "," . $startPoint[0] . "," .
                 $endPoint[1]   . "," . $endPoint[0]   . ")";
 
@@ -91,6 +95,11 @@ try {
 
     $src_arg = htmlspecialchars($_GET["src"]);
     $dst_arg = htmlspecialchars($_GET["dst"]);
+    $hour = htmlspecialchars($_GET["hour"]);
+
+    if (!$hour) {
+        $hour = 1;
+    }
 
     $startPoint = explode(',', $src_arg);
     $endPoint   = explode(',', $dst_arg);
@@ -98,7 +107,7 @@ try {
     // echo 'From ' . $src_arg, PHP_EOL;
     // echo 'To   ' . $dst_arg, PHP_EOL;
 
-    doRoute($dbcon, $startPoint, $endPoint, 0);
+    doRoute($dbcon, $startPoint, $endPoint, $hour);
 } catch (Exception $e) {
     // echo 'Caught exception: ',  $e->getMessage(), "\n";
     header("HTTP/1.1 500 Internal Server Error");
