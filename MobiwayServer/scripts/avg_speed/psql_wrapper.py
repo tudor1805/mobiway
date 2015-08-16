@@ -13,10 +13,17 @@ class PSqlWrapper:
     except Exception, e:
       print(e)
 
-  def query(self, query, args):
+  def update(self, query, args):
     try:
       self.cursor.execute(query, args)
       self.cnx.commit()
+      return self.cursor
+    except psycopg2.Error as err:
+      print(err)
+
+  def query(self, query, args):
+    try:
+      self.cursor.execute(query, args)
       return self.cursor
     except psycopg2.Error as err:
       print(err)

@@ -18,6 +18,14 @@ class MySqlWrapper:
       else:
         print(err)
 
+  def update(self, query, args):
+    try:
+      self.cursor.execute(query, args)
+      self.cnx.commit()
+      return self.cursor
+    except mysql.connector.errors.OperationalError as err:
+      print(err)
+
   def query(self, query, args):
     try:
       self.cursor.execute(query, args)

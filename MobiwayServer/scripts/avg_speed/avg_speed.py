@@ -1,8 +1,21 @@
 #!/usr/bin/python
 
+import datetime
 import app_configs
 from mysql_wrapper import *
 from psql_wrapper  import *
+
+def get_last_run_timestamp(mysql_db):
+  query = "SELECT last_timestamp FROM scripts_data";
+  cursor = mysql_db.query(query, ()).fetchone()
+
+  return cursor[0]
+
+def set_last_run_timestamp(mysql_db, timestamp):
+  query = ("UPDATE scripts_data "
+           "SET last_timestamp = %s");
+
+  mysql_db.update(query, (timestamp, ))
 
 def get_streets_list(psql_db):
   query = "SELECT osm_id FROM ways";
@@ -10,58 +23,41 @@ def get_streets_list(psql_db):
 
   return cursor
 
-def clear_avg_speed(psql_db):
+def update_avg_speed(psql_db, osm_id, hour, speed_forw):
+  hour_padded = (str(hour)).zfill(2)
+  selected_column = "practical_speed_forw_%s" %( hour_padded )
   query = ("UPDATE ways "
-           "SET practical_speed_forward = '', "
-           "practical_speed_backward = '' ");
-
-  cursor = psql_db.query(query, ())
-
-def update_avg_speed(psql_db, osm_id, speed_forw, speed_backw):
-  query = ("UPDATE ways "
-           "SET practical_speed_forward = %s, "
-           "practical_speed_backward = %s "
+           "SET " + selected_column + " = %s "
            "WHERE osm_id = %s");
 
-  cursor = psql_db.query(query, (speed_forw, speed_backw, osm_id))
+  cursor = psql_db.update(query, (speed_forw, osm_id))
   return 0
 
-def calc_way_avg_speed(mysql_db, osm_id):
-  averages = {
-           0 : 0.0, 1  : 0.0, 2  : 0.0, 3  : 0.0,
-           4 : 0.0, 5  : 0.0, 6  : 0.0, 7  : 0.0,
-           8 : 0.0, 9  : 0.0, 10 : 0.0, 11 : 0.0,
-           12: 0.0, 13 : 0.0, 14 : 0.0, 15 : 0.0,
-           16: 0.0, 17 : 0.0, 18 : 0.0, 19 : 0.0,
-           20: 0.0, 21 : 0.0, 22 : 0.0, 23 : 0.0
-            }
+def calc_way_avg_speed(mysql_db, osm_id, prev_tstamp, curr_tstamp):
 
   query = ("SELECT AVG(speed) AS avg, HOUR(timestamp) AS hour "
            "FROM journey_data "
            "WHERE osm_way_id = %s "
-           "GROUP BY HOUR(timestamp)");
+           "AND speed > 0 "
+           "AND timestamp BETWEEN %s AND %s "
+           "GROUP BY HOUR(timestamp) HAVING count(speed) > 1000");
 
-  cursor = mysql_db.query(query, (osm_id, ))
+  cursor = mysql_db.query(query, (osm_id, prev_tstamp, curr_tstamp, ))
 
+  # Map with key as hour and value as average speed
+  averages = { }
   for (speed, hour) in cursor:
-      print(str(speed) + "=" + str(hour))
       averages[hour] = speed
+      #print(str(speed) + "=" + str(hour))
 
-  serialized_avg = ""
-  for k in averages:
-      line = "%s %s" %(str(k), str(averages[k]))
-      if k < 23:
-          line += ","
-
-      serialized_avg += line
-  return serialized_avg
+  return averages
 
 def mysql_test():
   mysql_db = MySqlWrapper(app_configs.mysql_config)
   mysql_db.connect()
 
-  osm_id = 2838257353
-  calc_way_avg_speed(mysql_db, osm_id)
+#  osm_id = 2838257353
+#  calc_way_avg_speed(mysql_db, osm_id)
 
   mysql_db.disconnect()
 
@@ -72,12 +68,19 @@ def calculate_speed_averages():
   psql_db = PSqlWrapper(app_configs.psql_config)
   psql_db.connect()
 
+  # Save the current time
+  prev_tstamp = get_last_run_timestamp(mysql_db)
+  curr_tstamp = datetime.datetime.now()
+
   updated_streets = 0
   street_list = get_streets_list(psql_db).fetchall()
   for street_osm in street_list:
     street_id = street_osm[0]
-    avg = calc_way_avg_speed(mysql_db, street_id)
-    update_avg_speed(psql_db, int(street_id), avg, avg)
+    avg_map = calc_way_avg_speed(mysql_db, street_id, \
+                                 prev_tstamp, curr_tstamp)
+    for hour in avg_map:
+        avg_hour = avg_map[hour]
+        update_avg_speed(psql_db, int(street_id), hour, avg_hour)
 
     updated_streets += 1
     if updated_streets % 1000 == 0:
@@ -85,9 +88,15 @@ def calculate_speed_averages():
 
   print("Finished updating %s Streets ==" %(updated_streets));
 
+  print "==== Update timestamp ===="
+  dt_format = '%Y-%m-%d %H:%M:%S'
+  curr_time_mysql = curr_tstamp.strftime(dt_format)
+  set_last_run_timestamp(mysql_db, curr_time_mysql)
+
   psql_db.disconnect()
   mysql_db.disconnect()
 
 if __name__ == "__main__":
+  # mysql_test()
   calculate_speed_averages()
 
