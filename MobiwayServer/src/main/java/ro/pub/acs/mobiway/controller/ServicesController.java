@@ -160,7 +160,7 @@ public class ServicesController {
 
 		/* Save and return the new user */
 		int userId;
-	
+
 		/* Update user into database */
 		User oldUser = userDAO.get(user.getUsername());
 		if (oldUser != null) {
@@ -307,21 +307,20 @@ public class ServicesController {
 					url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
 					url.append("&lat=" + location.getLatitude());
 					url.append("&lon=" + location.getLongitude());
-				
+
 					HttpGet httpGet = new HttpGet(url.toString());
 					HttpResponse httpGetResponse = httpClient.execute(httpGet);
 					HttpEntity httpGetEntity = httpGetResponse.getEntity();
-			
-					if (httpGetEntity != null) {  
+
+					if (httpGetEntity != null) {
 						String response = EntityUtils.toString(httpGetEntity);
 						JSONObject nodeData = new JSONObject(response);
 						osmId = nodeData.getString("osm_id");
 					}
 				} catch (Exception exception) {
-					exception.printStackTrace();
+					// exception.printStackTrace();
 				}
 				journeyData.setOsmWayId(osmId);
-
 				journeyDataDAO.add(journeyData);
 			}
 
@@ -344,6 +343,23 @@ public class ServicesController {
 		return friends;
 	}
 
+	/* Check if the reported location is within a near timeframe */
+	private boolean locationIsOk(Location location) {
+		if (location != null && location.getTimestamp() != null) {
+			Date now = new Date();
+			Date last = location.getTimestamp();
+
+			// Only retun locations if reported in the last minute
+			long secondsBetween =
+				(now.getTime() - last.getTime()) / 1000;
+
+			if (secondsBetween >= 0 && secondsBetween <= 60) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@RequestMapping(value = "/social/getFriendsLocations", method = RequestMethod.GET)
 	public @ResponseBody List<Location> getFriendsLocations(
 			@RequestHeader("X-Auth-Token") String authToken) {
@@ -356,8 +372,7 @@ public class ServicesController {
 			for (User friend : friends) {
 				Location location =
 					locationDAO.getLocation(friend);
-				if (location != null) {
-					location.setTimestamp(null);
+				if (locationIsOk(location)) {
 					locations.add(location);
 				}
 			}
@@ -385,7 +400,7 @@ public class ServicesController {
 			@RequestBody List<User> friends) {
 		User user = userDAO.get(authToken, 0);
 		List<String> oldFriends = new ArrayList<String>();
-		
+
 		if (user == null) {
 			return false;
 		} else {
@@ -423,12 +438,12 @@ public class ServicesController {
 				StringBuilder url = new StringBuilder();
 				url.append(Constants.URL_NOMINATIM_API + "/search?format=json&q=bucharest+");
 				url.append(type + "&limit=50");
-				
+
 				HttpGet httpGet = new HttpGet(url.toString());
 				HttpResponse httpGetResponse = httpClient.execute(httpGet);
 				HttpEntity httpGetEntity = httpGetResponse.getEntity();
-		
-				if (httpGetEntity != null) {  
+
+				if (httpGetEntity != null) {
 					String response = EntityUtils.toString(httpGetEntity);
 					places = new JSONArray(response);
 
@@ -458,12 +473,17 @@ public class ServicesController {
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 
+
 		try {
+			Calendar rightNow = Calendar.getInstance();
+			int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
+
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
 			url.append(Constants.URL_PGROUTING_API + "/pgroute.php?");
 			url.append("src=" + locations.get(0).getLatitude() + "," + locations.get(0).getLongitude());
 			url.append("&dst=" + locations.get(1).getLatitude() + "," + locations.get(1).getLongitude());
+			url.append("&hour=" + currentHour);
 
 			HttpGet httpGet = new HttpGet(url.toString());
 			HttpResponse httpGetResponse = httpClient.execute(httpGet);
@@ -511,7 +531,7 @@ public class ServicesController {
 			HttpResponse httpGetResponse = httpClient.execute(httpGet);
 			HttpEntity httpGetEntity = httpGetResponse.getEntity();
 
-			if (httpGetEntity != null) {  
+			if (httpGetEntity != null) {
 				String response = EntityUtils.toString(httpGetEntity);
 
 				JSONObject route = new JSONObject(response);
@@ -540,7 +560,7 @@ public class ServicesController {
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
 		}
-		
+
 		return routePoints;
 	}
 
