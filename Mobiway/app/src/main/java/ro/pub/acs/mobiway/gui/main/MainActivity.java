@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -13,38 +15,25 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.*;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.*;
 
 import java.util.*;
 
-import javax.xml.datatype.Duration;
-
-import ro.pub.acs.mobiway.general.Constants;
-import ro.pub.acs.mobiway.general.SharedPreferencesManagement;
-import ro.pub.acs.mobiway.general.Util;
+import ro.pub.acs.mobiway.core.RoutingHelper;
+import ro.pub.acs.mobiway.general.*;
 import ro.pub.acs.mobiway.gui.settings.SettingsActivity;
-import ro.pub.acs.mobiway.rest.RestClient;
-import ro.pub.acs.mobiway.rest.model.Place;
-import ro.pub.acs.mobiway.rest.model.Policy;
-import ro.pub.acs.mobiway.rest.model.User;
+import ro.pub.acs.mobiway.rest.*;
+import ro.pub.acs.mobiway.rest.model.*;
 import ro.pub.acs.mobiway.R;
 
 public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -55,6 +44,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private static ArrayList<ro.pub.acs.mobiway.rest.model.Location> locationArrayList = new ArrayList<>();
     private static List<User> friendsNames = null;
     private static List<ro.pub.acs.mobiway.rest.model.Location> friendsLocations = null;
+
     private static boolean firstLocation = true;
     private SharedPreferencesManagement sharedPreferencesManagement;
     private GoogleMap googleMap = null; /* Might be null if Google Play services APK is not available. */
@@ -64,9 +54,57 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private Marker marker;
     private LatLng latLngMarker;
 
-    private Button showRouteButton;
-    private Button hideRouteButton;
     private ArrayList<Polyline> aPolyline = new ArrayList<>();
+
+    private RoutingHelper routingHelper;
+
+
+    private void showRoute(final String routingEngine)
+    {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RestClient restClient = new RestClient();
+
+                    ArrayList<ro.pub.acs.mobiway.rest.model.Location> locations = new ArrayList<>();
+                    ro.pub.acs.mobiway.rest.model.Location location1 = new ro.pub.acs.mobiway.rest.model.Location();
+                    ro.pub.acs.mobiway.rest.model.Location location2 = new ro.pub.acs.mobiway.rest.model.Location();
+
+                    if (routingHelper.getUseGpsForSrc()) {
+                        location1.setLatitude((float) lastLocation.getLatitude());
+                        location1.setLongitude((float) lastLocation.getLongitude());
+                    } else {
+                        LatLng srcLoc = routingHelper.getSrcLocation();
+                        location1.setLatitude((float) srcLoc.latitude);
+                        location1.setLongitude((float) srcLoc.longitude);
+                    }
+
+                    LatLng dstLoc = routingHelper.getDstLocation();
+                    location2.setLatitude((float) dstLoc.latitude);
+                    location2.setLongitude((float) dstLoc.longitude);
+
+                    locations.add(location1);
+                    locations.add(location2);
+
+                    /* getRoute -> OSRM getRoutePG -> PGRouting */
+
+                    if (routingEngine.equalsIgnoreCase("osrm")) {
+                        List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
+                        showRouteOnMap(result);
+                    } else if (routingEngine.equalsIgnoreCase("pgrouting")) {
+                        List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
+                        showRouteOnMap(result);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +113,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         sharedPreferencesManagement = new SharedPreferencesManagement(getApplicationContext());
 
-        checkServerConnectivity();
+        routingHelper = new RoutingHelper(this);
+
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -91,68 +130,22 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if (sharedPreferencesManagement.isFirstTimeUse()) {
+            loadDefaultPolicyValues();
             getContacts();
             sharedPreferencesManagement.setFirstTimeUse();
         } else {
             getFriends();
         }
 
-        setAcceptedPolicies();
         getNearbyLocations();
-
-        showRouteButton = (Button) findViewById(R.id.button_show_route);
-        showRouteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            RestClient restClient = new RestClient();
-
-                            ArrayList<ro.pub.acs.mobiway.rest.model.Location> locations = new ArrayList<>();
-                            ro.pub.acs.mobiway.rest.model.Location location1 = new ro.pub.acs.mobiway.rest.model.Location();
-                            ro.pub.acs.mobiway.rest.model.Location location2 = new ro.pub.acs.mobiway.rest.model.Location();
-                            location1.setLatitude((float) lastLocation.getLatitude());
-                            location1.setLongitude((float) lastLocation.getLongitude());
-                            location2.setLatitude((float) latLngMarker.latitude);
-                            location2.setLongitude((float) latLngMarker.longitude);
-
-                            locations.add(location1);
-                            locations.add(location2);
-
-                            /* getRoute -> OSRM getRoutePG -> PGRouting */
-
-                            // List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoute(locations);
-                            List<ro.pub.acs.mobiway.rest.model.Location> result = restClient.getApiService().getRoutePG(locations);
-                            showRouteOnMap(result);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                thread.start();
-            }
-        });
-
-        hideRouteButton = (Button) findViewById(R.id.button_hide_route);
-        hideRouteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                for (Polyline polyline : aPolyline) {
-                    polyline.remove();
-                }
-                aPolyline.clear();
-                showRouteButton.setVisibility(View.GONE);
-                hideRouteButton.setVisibility(View.GONE);
-            }
-        });
     }
 
     @Override
     protected void onStart() {
         Log.i(TAG, "onStart() callback method was invoked");
         super.onStart();
+
+        checkServerStatus();
         googleApiClient.connect();
         if (googleMap == null) {
             googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
@@ -195,12 +188,14 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         super.onResume();
     }
 
+    private Menu currentMenu;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-
+        currentMenu = menu;
         return true;
     }
 
@@ -208,6 +203,55 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.gps_as_src: {
+                // Toggle selected state
+                boolean useGpsAsSrc = !item.isChecked();
+
+                MenuItem m1 = currentMenu.findItem(R.id.src_loc);
+                MenuItem m2 = currentMenu.findItem(R.id.dst_loc);
+                if (!useGpsAsSrc) {
+                    m1.setVisible(true);
+                    m2.setVisible(true);
+                } else {
+                    m1.setVisible(false);
+                    m2.setVisible(false);
+                }
+                item.setChecked(useGpsAsSrc);
+
+                routingHelper.setUseGpsForSrc(useGpsAsSrc);
+                routingHelper.clear();
+
+                return true;
+            }
+
+            case R.id.src_loc: {
+                routingHelper.selectSrc();
+                return true;
+            }
+
+            case R.id.dst_loc: {
+                routingHelper.selectDst();
+                return true;
+            }
+
+            case R.id.show_route_pgrouting: {
+                showRoute("pgrouting");
+                return true;
+            }
+
+            case R.id.show_route_osrm: {
+                showRoute("osrm");
+                return true;
+            }
+
+            case R.id.clear_routes: {
+                for (Polyline polyline : aPolyline) {
+                    polyline.remove();
+                }
+                aPolyline.clear();
+                return true;
+            }
+
             case R.id.action_settings: {
                 Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(i);
@@ -235,41 +279,75 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkNetworkConnectivity() {
-        if (!Util.isNetworkAvailable(this)) {
-            AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
-            dlgAlert.setMessage("\nNo network connectivity" +
-                    "\n\nPlease enable WiFi or" +
-                    "\nMobile Data" +
-                    "\n\n\nGoing to Exit now !");
-            dlgAlert.setTitle("Network Error");
-            dlgAlert.setPositiveButton("Exit Application", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                }
-            });
-            dlgAlert.setCancelable(false);
-            dlgAlert.create().show();
-        }
-    }
-
-    private void checkServerConnectivity() {
-        // See if we have WiFi or 4G connectivity
-        checkNetworkConnectivity();
-
-        // See if we can connect to the Server
+    private void loadDefaultPolicyValues() {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                boolean canConnect = false;
                 try {
-                    RestClient restClient = new RestClient();
-                    canConnect = restClient.getApiService().checkServerConnectivity();
-                } catch (Exception ex) {
-                    canConnect = false;
-                }
+                    SharedPreferencesManagement spm = SharedPreferencesManagement.getInstance(null);
 
-                if (!canConnect) {
+                    RestClient restClient = new RestClient();
+                    List<Policy> policyList =
+                            restClient.getApiService().getPolicyListApp(Constants.APP_NAME);
+
+                    List<String> acceptedPolicyList = new ArrayList<>();
+                    for (Policy policy : policyList) {
+                        acceptedPolicyList.add(policy.getPolicyName());
+                    }
+
+                    restClient.getApiService().acceptUserPolicyListForApp(
+                            spm.getAuthUserId(), Constants.APP_NAME, acceptedPolicyList);
+
+                    Set<String> acceptedPolicySet = new HashSet<>();
+                    acceptedPolicySet.addAll(acceptedPolicyList);
+                    spm.setUserPolicy(acceptedPolicySet);
+                } catch (Exception ex) {
+                    Log.d(TAG, "Error loading default policy values");
+                    //ex.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private boolean checkNetworkConnectivity() {
+        if (!Util.isNetworkAvailable(this)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MainActivity.this);
+                    dlgAlert.setMessage("\nNo network connectivity" +
+                            "\n\nPlease enable WiFi or" +
+                            "\nMobile Data" +
+                            "\n\n\nGoing to Exit now !");
+                    dlgAlert.setTitle("Network Error");
+                    dlgAlert.setPositiveButton("Exit Application", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    dlgAlert.setCancelable(false);
+                    dlgAlert.create().show();
+                }
+            });
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkServerConnectivity() {
+        boolean canConnect = false;
+        try {
+            RestClient restClient = new RestClient();
+            canConnect = restClient.getApiService().checkServerConnectivity();
+        } catch (Exception ex) {
+            canConnect = false;
+        }
+
+        if (!canConnect) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
                     AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MainActivity.this);
                     dlgAlert.setMessage("\nNo server connectivity" +
                             "\n\n\nGoing to Exit now !");
@@ -282,27 +360,24 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                     dlgAlert.setCancelable(false);
                     dlgAlert.create().show();
                 }
+            });
+        }
 
-            }
-        });
-        thread.start();
+        return canConnect;
     }
 
-    private void setAcceptedPolicies() {
+    private void checkServerStatus() {
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Set<String> policyPreferences = sharedPreferencesManagement.getUserPolicies();
-                    List<String> policyList = new ArrayList<String>();
-                    policyList.addAll(policyPreferences);
+                // See if we have WiFi or 4G connectivity
+                if (!checkNetworkConnectivity())
+                    return;
 
-                    RestClient restClient = new RestClient();
-                    restClient.getApiService().acceptUserPolicyListForApp(
-                            sharedPreferencesManagement.getAuthUserId(), Constants.APP_NAME, policyList);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                // See if we can connect to the Server
+                if (!checkServerConnectivity())
+                    return;
             }
         });
         thread.start();
@@ -542,7 +617,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 }
 
                 aPolyline.add(googleMap.addPolyline(polylineOptions));
-                hideRouteButton.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -552,13 +626,19 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         this.marker = marker;
         latLngMarker = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
         marker.showInfoWindow();
-        showRouteButton.setVisibility(View.VISIBLE);
         return true;
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
-        showRouteButton.setVisibility(View.GONE);
-        hideRouteButton.setVisibility(View.GONE);
+        Marker selMarker = googleMap.addMarker(new MarkerOptions()
+                .title("Marker")
+                .alpha(0.8f)
+                .position(latLng));
+
+        routingHelper.selectPoint(latLng, selMarker);
+        if (routingHelper.getUseGpsForSrc()) {
+            routingHelper.selectDst();
+        }
     }
 }

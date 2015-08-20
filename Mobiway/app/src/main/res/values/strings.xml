@@ -36,10 +36,12 @@
     <string name="key_categories_screen">key_categories_screen</string>
 
     <string name="default_language">ro</string>
+
     <string-array name="language_list_name">
         <item>Romanian</item>
         <item>English</item>
     </string-array>
+
     <string-array name="language_list_value">
         <item>ro</item>
         <item>en</item>
@@ -64,9 +66,14 @@
     <string name="loading">Loading..</string>
 
     <!-- Map -->
-    <string name="show_route">Show Route</string>
-    <string name="hide_routes">Hide Routes</string>
+    <string name="use_gps_as_src">Use GPS as Source</string>
+    <string name="use_as_src">Set as Source</string>
+    <string name="use_as_dst">Set as Destination</string>
+    <string name="show_route_pgrouting">Show Route (pgRouting)</string>
+    <string name="show_route_osrm">Show Route (OSRM)</string>
+    <string name="clear_routes">Clear Routes</string>
 
+    <!-- POI -->
     <string-array name="user_loc">
         <item>bar</item>
         <item>cafe</item>
@@ -93,5 +100,4 @@
         <item>marketplace</item>
         <item>police</item>
     </string-array>
-
 </resources>

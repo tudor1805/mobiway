@@ -4,6 +4,46 @@
     tools:context=".MainActivity">
 
     <item
+        android:id="@+id/gps_as_src"
+        android:checkable="true"
+        android:checked="true"
+        android:orderInCategory="100"
+        android:title="@string/use_gps_as_src"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/src_loc"
+        android:orderInCategory="100"
+        android:title="@string/use_as_src"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/dst_loc"
+        android:orderInCategory="100"
+        android:title="@string/use_as_dst"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/show_route_osrm"
+        android:orderInCategory="100"
+        android:title="@string/show_route_osrm"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/show_route_pgrouting"
+        android:orderInCategory="100"
+        android:title="@string/show_route_pgrouting"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/clear_routes"
+        android:orderInCategory="100"
+        android:title="@string/clear_routes"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
@@ -14,6 +54,4 @@
         android:orderInCategory="101"
         android:title="@string/action_logout"
         app:showAsAction="never" />
-
-
 </menu>

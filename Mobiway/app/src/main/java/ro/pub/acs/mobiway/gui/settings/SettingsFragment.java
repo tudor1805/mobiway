@@ -51,10 +51,10 @@ public class SettingsFragment extends PreferenceFragment {
 
         for (Policy policy : appPolicies) {
             CheckBoxPreference checkBoxPref = new CheckBoxPreference(screen.getContext());
-            checkBoxPref.setKey(policy.getPolicyName() + "_enabled");
+            checkBoxPref.setKey(policy.getPolicyName());
             checkBoxPref.setTitle(policy.getPolicyName());
             checkBoxPref.setSummary(policy.getPolicyDescription());
-            checkBoxPref.setChecked(acceptedPolicies.contains(policy));
+            checkBoxPref.setChecked(acceptedPolicies.contains(policy.getPolicyName()));
             policyCat.addPreference(checkBoxPref);
         }
     }

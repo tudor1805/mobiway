@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 
+import java.util.List;
 import java.util.Locale;
 
 import ro.pub.acs.mobiway.R;
@@ -67,8 +68,7 @@ public class AuthenticationActivity extends ActionBarActivity implements Fragmen
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //fragmentTransaction.add(R.id.container, new LoginFragment());
-            fragmentTransaction.add(R.id.container, new PolicyFragment());
+            fragmentTransaction.add(R.id.container, new LoginFragment());
             fragmentTransaction.commit();
 
             fragmentManager.addOnBackStackChangedListener(this);
