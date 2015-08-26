@@ -1,6 +1,7 @@
 package ro.pub.acs.mobiway.controller;
 
 import java.util.*;
+import java.io.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -100,7 +101,7 @@ public class ServicesController {
 
 		List <Policy> acceptedPolicies = new ArrayList<Policy>();
 
-	        User user = userDAO.get(authToken, userId);
+		User user = userDAO.get(authToken, userId);
 		if (user != null) {
 			List<UserPolicy> userPolicies =
 			userPolicyDAO.getUserAcceptedPoliciesByApp(user, appId);
@@ -115,7 +116,7 @@ public class ServicesController {
 	}
 
 	@RequestMapping(value = "/authenticate/acceptUserPolicyListForApp/{userId}/{appId}",
-		       	method = RequestMethod.POST)
+			method = RequestMethod.POST)
 	public @ResponseBody boolean acceptPolicyListForApp(
 			 @PathVariable Integer userId,
 			 @PathVariable String appId,
@@ -258,6 +259,38 @@ public class ServicesController {
 		}
 	}
 
+	private String getOSMId(Location location) {
+		/* Set the OSM id (used later)*/
+		String osmId = null;
+		try {
+			HttpClient httpClient = new DefaultHttpClient();
+
+			/* Perform Reverse Geocoding for a location */
+			StringBuilder url = new StringBuilder();
+			url.append(Constants.URL_NOMINATIM_API_LOCAL);
+			// url.append(Constants.URL_NOMINATIM_API);
+			// url.append("/reverse?format=json&zoom=18&addressdetails=0");
+			url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
+			url.append("&lat=" + location.getLatitude());
+			url.append("&lon=" + location.getLongitude());
+
+			HttpGet httpGet = new HttpGet(url.toString());
+			HttpResponse httpGetResponse = httpClient.execute(httpGet);
+			HttpEntity httpGetEntity = httpGetResponse.getEntity();
+
+			if (httpGetEntity != null) {
+				String response = EntityUtils.toString(httpGetEntity);
+				JSONObject nodeData = new JSONObject(response);
+				osmId = nodeData.getString("osm_id");
+			}
+		} catch (Exception exception) {
+			// Request can fail for a number of reasons
+			// Mainly if the data is not available for the specified coordinates
+			// exception.printStackTrace();
+		}
+		return osmId;
+	}
+
 	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
 	public @ResponseBody boolean updateLocation(@RequestBody Location location,
@@ -295,31 +328,7 @@ public class ServicesController {
 				journeyData.setTimestamp(currentDate);
 
 				/* Set the OSM id (used later)*/
-				String osmId = null;
-				try {
-					HttpClient httpClient = new DefaultHttpClient();
-
-					/* Perform Reverse Geocoding for a location */
-					StringBuilder url = new StringBuilder();
-					url.append(Constants.URL_NOMINATIM_API_LOCAL);
-					// url.append(Constants.URL_NOMINATIM_API);
-					// url.append("/reverse?format=json&zoom=18&addressdetails=0");
-					url.append("/reverse.php?format=json&zoom=18&addressdetails=0");
-					url.append("&lat=" + location.getLatitude());
-					url.append("&lon=" + location.getLongitude());
-
-					HttpGet httpGet = new HttpGet(url.toString());
-					HttpResponse httpGetResponse = httpClient.execute(httpGet);
-					HttpEntity httpGetEntity = httpGetResponse.getEntity();
-
-					if (httpGetEntity != null) {
-						String response = EntityUtils.toString(httpGetEntity);
-						JSONObject nodeData = new JSONObject(response);
-						osmId = nodeData.getString("osm_id");
-					}
-				} catch (Exception exception) {
-					// exception.printStackTrace();
-				}
+				String osmId = getOSMId(location);
 				journeyData.setOsmWayId(osmId);
 				journeyDataDAO.add(journeyData);
 			}
@@ -459,11 +468,40 @@ public class ServicesController {
 					}
 				}
 			} catch (Exception exception) {
-			    exception.printStackTrace();
+				exception.printStackTrace();
 			}
 		}
 
 		return aPlace;
+	}
+
+	private void saveRouteToFile(String tag, List<Location> routePoints) {
+		String logPath = "/var/log/routes/";
+
+		try {
+			File file = new File(logPath + new Date().getTime());
+
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+
+			bw.write("Route tag: " + tag);
+			bw.newLine();
+
+			for (Location loc: routePoints) {
+				bw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + getOSMId(loc));
+				bw.newLine();
+			}
+
+			bw.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@SuppressWarnings({ "deprecation", "resource" })
@@ -472,7 +510,6 @@ public class ServicesController {
 			@RequestHeader("X-Auth-Token") String authToken,
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
-
 
 		try {
 			Calendar rightNow = Calendar.getInstance();
@@ -508,6 +545,10 @@ public class ServicesController {
 			// Request can fail for a number of reasons
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
+		}
+
+		if (Constants.DEBUG_MODE) {
+			saveRouteToFile("pgRouting", routePoints);
 		}
 
 		return routePoints;
@@ -559,6 +600,10 @@ public class ServicesController {
 			// Request can fail for a number of reasons
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
+		}
+
+		if (Constants.DEBUG_MODE) {
+			saveRouteToFile("OSRM", routePoints);
 		}
 
 		return routePoints;
