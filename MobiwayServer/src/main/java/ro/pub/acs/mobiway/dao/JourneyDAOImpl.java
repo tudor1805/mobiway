@@ -7,10 +7,12 @@ import org.hibernate.criterion.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import ro.pub.acs.mobiway.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JourneyDAOImpl implements JourneyDAO {
 	private static final long serialVersionUID = 1L;
-	
+
+	@Autowired	
 	private SessionFactory sessionFactory;
 
 	public JourneyDAOImpl(SessionFactory sessionFactory) {

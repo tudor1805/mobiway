@@ -3,6 +3,9 @@ package ro.pub.acs.mobiway.controller;
 import java.util.*;
 import java.io.*;
 
+import org.springframework.transaction.annotation.Transactional;
+
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -22,6 +25,7 @@ import ro.pub.acs.mobiway.utils.Constants;
 
 @RestController
 @RequestMapping("/services")
+@Transactional
 public class ServicesController {
 
 	@Autowired
@@ -44,6 +48,76 @@ public class ServicesController {
 
 	@Autowired
 	private UserPolicyDAO userPolicyDAO;
+
+	@Autowired
+	private TrafficEventDAO trafficEventDAO;
+
+	@Autowired
+	private UserEventDAO userEventDAO;
+
+	@SuppressWarnings({ "deprecation", "resource" })
+	@RequestMapping(value = "/location/getEvent/{latitude}/{longitude}", method = RequestMethod.GET)
+	public @ResponseBody UserEvent getEvent(
+			@PathVariable Integer idUser,
+			@PathVariable Float latitude,
+			@PathVariable Float longitude,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		User user = userDAO.get(authToken, idUser);
+		if (user == null) {
+			return null;
+		}
+
+		Location location = new Location();
+		location.setLatitude(latitude);
+		location.setLongitude(longitude);
+
+		String osmId = getOSMId(location);
+		UserEvent event = userEventDAO.get(osmId);
+
+		return event;
+	}
+
+	@SuppressWarnings({ "deprecation", "resource" })
+	@RequestMapping(value = "/location/postEvent/{eventName}/{distance}/{timeSinceEvent}/{spaceAccuracy}/{timeAccuracy}/{latitude}/{longitude}/{osmWayId}", method = RequestMethod.PUT)
+	public @ResponseBody boolean postEvent(
+			@PathVariable String eventName,
+			@PathVariable Float distance,
+			@PathVariable Float timeSinceEvent,
+			@PathVariable Float spaceAccuracy,
+			@PathVariable Float timeAccuracy,
+			@PathVariable Float latitude,
+			@PathVariable Float longitude,
+			@PathVariable String osmWayId,
+			@RequestBody Location location,
+			@RequestHeader("X-Auth-Token") String authToken) {
+
+		User user = userDAO.get(authToken, location.getIdUser());
+		if (user == null) {
+			return false;
+		}
+
+		TrafficEvent te = trafficEventDAO.get(eventName);
+		if (te == null) {
+			return false;
+		}
+
+		Date currentDate = new Date();
+
+		UserEvent event = new UserEvent();
+		event.setIdUser(user);
+		event.setIdTrafficEvent(te);
+		event.setTimestamp(currentDate);
+		event.setDistance(distance);
+		event.setSpaceAccuracy(spaceAccuracy);
+		event.setTimeAccuracy(timeAccuracy);
+		event.setLatitude(latitude);
+		event.setLongitude(longitude);
+		event.setOsmWayId(osmWayId);
+		userEventDAO.add(event);
+
+		return true;
+	}
 
 	@RequestMapping(value = "/checkServerConn", method = RequestMethod.GET)
 	public @ResponseBody boolean checkServerConn() {
@@ -295,6 +369,7 @@ public class ServicesController {
 	@RequestMapping(value = "/location/update", method = RequestMethod.PUT)
 	public @ResponseBody boolean updateLocation(@RequestBody Location location,
 			@RequestHeader("X-Auth-Token") String authToken) {
+
 		User user = userDAO.get(authToken, location.getIdUser());
 
 		if (user != null) {
@@ -475,7 +550,7 @@ public class ServicesController {
 		return aPlace;
 	}
 
-	private void saveRouteToFile(String tag, List<Location> routePoints) {
+	private void saveRouteToFile(String tag, List<Location> routePoints, Calendar start, Calendar end) {
 		String logPath = "/var/log/routes/";
 
 		try {
@@ -511,7 +586,9 @@ public class ServicesController {
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 
+		Calendar start = Calendar.getInstance();
 		try {
+
 			Calendar rightNow = Calendar.getInstance();
 			int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
 
@@ -546,9 +623,10 @@ public class ServicesController {
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
 		}
+		Calendar end = Calendar.getInstance();
 
 		if (Constants.DEBUG_MODE) {
-			saveRouteToFile("pgRouting", routePoints);
+			saveRouteToFile("pgRouting", routePoints, start, end);
 		}
 
 		return routePoints;
@@ -561,6 +639,7 @@ public class ServicesController {
 			@RequestBody ArrayList<Location> locations) {
 		ArrayList<Location> routePoints = new ArrayList<Location>();
 
+ Calendar start = Calendar.getInstance();
 		try {
 			HttpClient httpClient = new DefaultHttpClient();
 			StringBuilder url = new StringBuilder();
@@ -601,9 +680,10 @@ public class ServicesController {
 			// Mainly if the data is not available for the specified coordinates
 			// exception.printStackTrace();
 		}
+ Calendar end = Calendar.getInstance();
 
 		if (Constants.DEBUG_MODE) {
-			saveRouteToFile("OSRM", routePoints);
+			saveRouteToFile("OSRM", routePoints, start, end);
 		}
 
 		return routePoints;

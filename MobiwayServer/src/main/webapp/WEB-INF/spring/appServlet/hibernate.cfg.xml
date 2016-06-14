@@ -22,21 +22,84 @@
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
-			</props>
-		</property>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.use_sql_comments">true</prop>
+				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.connection.autocommit">false</prop>
 
-		<property name="annotatedClasses">
-			<list>
-				<value>ro.pub.acs.mobiway.model.User</value>
-				<value>ro.pub.acs.mobiway.model.UserContact</value>
-				<value>ro.pub.acs.mobiway.model.Journey</value>
-				<value>ro.pub.acs.mobiway.model.JourneyData</value>
-				<value>ro.pub.acs.mobiway.model.Location</value>
-				<value>ro.pub.acs.mobiway.model.Policy</value>
-				<value>ro.pub.acs.mobiway.model.UserPolicy</value>
-			</list>
+
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<!--
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.use_structured_cache">true</prop> 
+-->
+				<prop key="hibernate.cache.use_first_level_cache">true</prop>
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>
+				<prop key="hibernate.transaction.auto_close_session">false</prop>
+				<prop key="hibernate.transaction.flush_before_completion">false</prop>
+				<prop key="hibernate.jdbc.batch_size">500</prop>
+				<prop key="hibernate.jdbc.order_inserts">true</prop>
+				<prop key="hibernate.jdbc.order_updates">true</prop>
+
+				<prop key="log4j.logger.org.hibernate.SQL">debug</prop>
+				<prop key="log4j.logger.org.hibernate.id">info</prop>
+				<prop key="log4j.logger.org.hibernate.type">debug</prop>
+				<prop key="log4j.logger.org.hibernate.cache">debug</prop>
+				<prop key="log4j.logger.org.hibernate.jdbc">debug</prop>
+				<prop key="log4j.logger.org.hibernate.hql">debug</prop>
+				<prop key="log4j.logger.org.springframework.transaction">info</prop>
+
+
+
+				<!-- Important
+
+			<prop key="hibernate.jdbc.batch_size">5000</prop>  
+				<prop key="hibernate.order_inserts">true</prop>  
+				<prop key="hibernate.order_updates">true</prop>
+
+
+			<prop key="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider<prop/>
+ -->
+				<!--
+					<property name="hibernate.connection.autocommit">false</property>
+				-->
+
+	<!--
+        <prop key="javax.persistence.validation.mode">none</prop>
+	<prop key="hibernate.connection.release_mode">after_statement</prop>
+	<prop key="hibernate.connection.release_mode">after_transaction</prop>
+
+
+        <prop key="hibernate.c3p0.minPoolSize">1</prop>
+        <prop key="hibernate.c3p0.maxPoolSize">100</prop>
+        <prop key="hibernate.c3p0.acquireIncrement">1</prop>
+        <prop key="hibernate.c3p0.initialPoolSize">1</prop>
+        <prop key="hibernate.c3p0.timeout">30</prop>
+        <prop key="hibernate.c3p0.maxStatements">1000</prop>
+        <prop key="hibernate.c3p0.maxIdleTimeExcessConnections">5</prop>
+	<prop key="hibernate.c3p0.idleConnectionTestPeriod">300</prop>
+
+	<prop key="hibernate.c3p0.max_size">1000</prop>
+	<prop key="hibernate.cache.use_second_level_cache">false</prop>
+-->
+ 			</props>
+ 		</property>
+ 
+ 		<property name="annotatedClasses">
+ 			<list>
+ 				<value>ro.pub.acs.mobiway.model.User</value>
+ 				<value>ro.pub.acs.mobiway.model.UserContact</value>
+ 				<value>ro.pub.acs.mobiway.model.Journey</value>
+ 				<value>ro.pub.acs.mobiway.model.JourneyData</value>
+ 				<value>ro.pub.acs.mobiway.model.Location</value>
+ 				<value>ro.pub.acs.mobiway.model.Policy</value>
+ 				<value>ro.pub.acs.mobiway.model.UserPolicy</value>
+ 				<value>ro.pub.acs.mobiway.model.TrafficEvent</value>
+ 				<value>ro.pub.acs.mobiway.model.UserEvent</value>
+ 			</list>
 		</property>
 	</bean>
+
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
 	<bean id="transactionManager"
@@ -49,8 +112,8 @@
 		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 
 	<!-- Instructs the container to look for beans with @Transactional and decorate 
+		<property name="dataSource" ref="dataSource" />
 		them -->
-
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
     <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
