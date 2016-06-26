@@ -57,7 +57,7 @@ public class ServicesController {
 
 	@SuppressWarnings({ "deprecation", "resource" })
 	@RequestMapping(value = "/location/getEvent/{latitude}/{longitude}", method = RequestMethod.GET)
-	public @ResponseBody UserEvent getEvent(
+	public @ResponseBody List<UserEvent> getEvent(
 			@PathVariable Integer idUser,
 			@PathVariable Float latitude,
 			@PathVariable Float longitude,
@@ -73,7 +73,7 @@ public class ServicesController {
 		location.setLongitude(longitude);
 
 		String osmId = getOSMId(location);
-		UserEvent event = userEventDAO.get(osmId);
+		List<UserEvent> event = userEventDAO.get(osmId);
 
 		return event;
 	}

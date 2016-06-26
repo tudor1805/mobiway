@@ -8,7 +8,7 @@ import ro.pub.acs.mobiway.model.*;
 public interface UserEventDAO extends Serializable {
 	public UserEvent get(int id);
 
-	public UserEvent get(String osmId);
+	public List<UserEvent> get(String osmId);
 
 	public int update(UserEvent event);
 
