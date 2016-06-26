@@ -58,14 +58,6 @@ public class JourneyDataDAOImpl implements JourneyDataDAO {
 	}
 
 	@Override
-//	@Transactional
-	public void add2(JourneyData journeyData) {
-		Session session = sessionFactory.getCurrentSession();
-		session.saveOrUpdate(journeyData);
-	}
-
-
-	@Override
 	@Transactional
 	public int update(JourneyData journeyData) {
 		Session session = sessionFactory.getCurrentSession();
